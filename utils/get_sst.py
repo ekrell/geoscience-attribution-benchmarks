@@ -194,24 +194,5 @@ def main():
   np.savez(output_cov, covariance=cov_anom_reduced, mask=ocean_map_reduced)
 
 
-  exit(0)
-
-  # Generate a random sample
-  sample_ = np.random.multivariate_normal(np.zeros(cov_anom_reduced.shape[0]), cov_anom_reduced)
-  sample = np.empty(sst_anom_reduced.shape[0] * sst_anom_reduced.shape[1])
-  sample[:] = np.nan
-  sample[coords] = sample_
-  sample = np.reshape(sample, (sst_anom_reduced.shape[0], sst_anom_reduced.shape[1]))
-
-  print(sample.shape)
-  plt.clf()
-  plt.close()
-  cmap = cm.bwr
-  cmap.set_bad("#D9D0B4", 1.)
-  plt.imshow(sample, cmap=cmap, vmin=-5, vmax=5)
-
-  plt.show()
-
-
 if __name__ == "__main__":
   main()
