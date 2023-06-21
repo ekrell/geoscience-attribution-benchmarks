@@ -61,8 +61,11 @@ mask = cov_data["mask"]
 # The mask size determines raster size
 rows = mask.shape[0]
 cols = mask.shape[1]
-bands = 1
-grid_elems = rows * cols
+if len(mask.shape) > 2:
+  bands = mask.shape[2]
+else:
+  bands = 1
+grid_elems = rows * cols * bands
 
 # But there may be less elements in the covariance matrix
 # (e.g. we only want to generate for water, skipping land)
@@ -70,7 +73,7 @@ cov_elems = cov.shape[0]
 
 # The 'True' mask elements correspond to 
 # those included in the covariance matrix
-m = np.reshape(mask, rows * cols)
+m = np.reshape(mask, rows * cols * bands)
 coords = np.where(m == True)
 coords = coords[0]
 
@@ -90,6 +93,7 @@ print("  Load file using 'numpy.load({})'".format(out_file))
 sample_vals = np.random.multivariate_normal(np.zeros(cov_elems), # Sample mean
                                             cov,                 # Sample covariance
                                             n_samples)           # Number to generate
+
 # Generate empty rasters that will hold the generated data
 sample_raster = np.empty((n_samples, grid_elems))
 # Init to NaN
@@ -97,7 +101,8 @@ sample_raster[:] = np.nan
 # Use the mask to assign the generated values to the raster
 sample_raster[:, coords] = sample_vals
 # Reshape from 1D vector to raster with rows, cols, bands
-sample_raster = np.reshape(sample_raster, (n_samples, rows, cols))
+sample_raster = np.reshape(sample_raster, (n_samples, rows, cols, bands))
+print(sample_raster.shape)
 
 
 #########
