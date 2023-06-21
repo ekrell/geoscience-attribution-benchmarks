@@ -75,7 +75,7 @@ def main():
 
   # Reshape so that each raster is a single vector
   x = np.reshape(patches, (n_patches, rows * cols * 4))
-  cov = np.cov(x)
+  cov = np.cov(x, rowvar=False)
 
   # Create a mask that indicates that each cell is included in the covariance matrix
   mask = np.ones((rows, cols, 4)).astype("bool")
