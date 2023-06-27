@@ -79,7 +79,80 @@ Data source: https://github.com/djgagne/ams-ml-python-course
 ![out/tornado_samples_plot.png](out/tornado_samples_plot.png)
     
 
+### Example: create 2D sythnetic benchmark with autocorrelation using commands
 
+**View example commands file**
+
+    cat data/cmds_example_2D.dat
+    RASTER samples=10 rows=50 cols=50 bands=1
+    SEED coords=10,10 value=0.2 threshold=0.9 decay=0.01 value_dist=0.2
+    SEED coords=20,20 value=0.6 threshold=0.9 decay=0.01
+    SEED coords=40,20 value=0.8 threshold=0.9 decay=0.01 value_dist=0.3
+    DILATE size=2,2 structure=2,2
+
+**Generate synthetic samples**
+
+    python benchmarks/benchmark_from_commands.py \
+        -f data/cmds_example_2D.dat \    # Path to commands
+        -o out/cmds_example_2D.npz       # To save synthetic samples
+
+**Plot generated samples**
+
+    python utils/plot_samples.py \
+        -r out/cmds_example_2D.npz \     # Synthetic samples
+        -i 0,1 \                         # Indices to plot
+        -o out/cmds_example_2D.png       # Where to save plot
+
+![out/cmds_example_2D.png](out/cmds_example_2D.png)
+
+
+### Example: create 3D synthetic benchmark with temporal relationships across channels
+
+**View example commands file**
+
+    RASTER samples=10 rows=50 cols=50 bands=1
+    SEED coords=10,10 value=0.2 threshold=0.9 decay=0.01 value_dist=0.2
+    SEED coords=20,20 value=0.6 threshold=0.9 decay=0.01 value_dist=0.1
+    SEED coords=40,20 value=0.8 threshold=0.9 decay=0.01 value_dist=0.3
+    BLUR sigma=0.75
+    TIMESHIFT direction_degrees=20 magnitude_pixels=2 num_shifts=5 random_dist=1
+    CROP low_row=10 high_row=40 low_col=4 high_col=39
+
+**Generate synthetic samples**
+
+    python benchmarks/benchmark_from_commands.py \
+        -f data/cmds_example_3D-temporal.dat \    # Path to commands
+        -o out/cmds_example_3D-temporal.npz       # To save synthetic samples
+
+**Plot generated samples**
+
+    python utils/plot_samples.py \
+        -r out/cmds_example_3D-temporal.npz \     # Synthetic samples
+        -i 0,1 \                                  # Indices to plot
+        -o out/cmds_example_3D-temporal.png       # Where to save plot
+
+![out/cmds_example_3D-temporal.png](out/cmds_example_3D-temporal.png)
+
+
+### Example: create 3D synthetic benchmark with spatial relationships across channels
+
+**View example commands file**
+
+
+**Generate synthetic samples**
+
+    python benchmarks/benchmark_from_commands.py \
+        -f data/cmds_example_3D-spatial.dat \    # Path to commands
+        -o out/cmds_example_3D-spatial.npz       # To save synthetic samples
+
+**Plot generated samples**
+
+    python utils/plot_samples.py \
+        -r out/cmds_example_3D-spatial.npz \     # Synthetic samples
+        -i 0,1 \                                 # Indices to plot
+        -o out/cmds_example_3D-spatial.png       # Where to save plot
+
+![out/cmds_example_3D-spatial.png](out/cmds_example_3D-spatial.png)
 
 
 

@@ -1,0 +1,5 @@
+RASTER samples=10 rows=50 cols=50 bands=6
+SEED coords=10,10,3 value=0.2 threshold=0.9 decay=0.01 value_dist=0.2
+SEED coords=20,20,3 value=0.6 threshold=0.9 decay=0.01
+SEED coords=40,40,3 value=0.8 threshold=0.9 decay=0.04 value_dist=0.05
+SEED coords=40,30,3 value=0.9 threshold=0.9 decay=0.04 value_dist=0.05
