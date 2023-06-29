@@ -155,7 +155,16 @@ Data source: https://github.com/djgagne/ams-ml-python-course
 ![out/cmds_example_3D-spatial.png](out/cmds_example_3D-spatial.png)
 
 
+## Extra Utilities
 
+### Example: Concatenate 2 rasters along the channels
+
+Many models take in multi-channel rasters where the channels might not be related to other other. That is, there is no spatial or temporal meaning to their adjacency. We can create synthetic samples like this by generating distinct samples and then concatenating them along the channels. 
+
+    python utils/cat_rasters.py \
+        -a out/cmds_example_2D.npz \         # Raster A
+        -b out/cmds_example_3D-spatial.npz \ # Raster B
+        -o out/cmds_example_concag.npz       # Concat (A, B)
 
 
 
