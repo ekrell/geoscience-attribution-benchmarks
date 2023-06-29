@@ -1,7 +1,7 @@
 # This program crops a raster along multiple dimensions
 # Assumes rasters have either:
 #   1) shape of (samples, rows, cols, bands)
-#   2) shaope of (rows, cols, bands)
+#   2) shape of (rows, cols, bands)
 
 import os
 import numpy as np

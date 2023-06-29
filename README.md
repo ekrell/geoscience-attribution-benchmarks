@@ -174,6 +174,20 @@ Many models take in multi-channel rasters where the channels might not be relate
         --low_row 10 \                   # Lower index of rows 
         --high_row 40                    # Higher index of rows
    
+### Example: expand raster dimensions
+
+Most of these tools assume a `.npz` file with a variable that contains an
+array with shape (samples, rows, cols, bands). This tool is used to expand
+the dimensions of the raster, either on the left or right. 
+
+    python utils/expand_dims.py \
+        -i out/example_of_2D_shape.npz \   # Path to input raster
+        -o out/example_of_expanded.npz \   # To save reshaped raster
+        --expand_left \                    # Choice to expand on left axis
+        --expand_right                     # Choice to expand on right axis
+
+
+
 
 
 
