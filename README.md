@@ -133,6 +133,16 @@ Data source: https://github.com/djgagne/ams-ml-python-course
 
 ![out/cmds_example_3D-temporal.png](out/cmds_example_3D-temporal.png)
 
+**Plot a single sample as animation**
+
+    python utils/plot_samples.py \
+        -r out/cmds_example_3D-temporal.npz \     # Synthetic samples
+        -i 3 \                                    # Can animate only one at a time
+        --animate \                               # Will create a looping gif
+        -o out/cmds_example_3D-temporal.gif
+
+![out/cmds_example_3D-temporal.gif](out/cmds_example_3D-temporal.gif)
+
 
 ### Example: create 3D synthetic benchmark with spatial relationships across channels
 

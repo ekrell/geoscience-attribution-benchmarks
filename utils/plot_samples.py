@@ -3,7 +3,7 @@
 import numpy as np
 from optparse import OptionParser
 import matplotlib.pyplot as plt
-
+import matplotlib.animation as animation
 
 ###########
 # Options #
@@ -18,6 +18,10 @@ parser.add_option("-v", "--variable_name",
 parser.add_option("-i", "--indices",
                   default="0",
                   help="Comma-delimited list of which rasters to plot (0-based count).")
+parser.add_option("-a", "--animate",
+                  default=False,
+                  action="store_true",
+                  help="Show the bands using an animated '.gif'.")
 parser.add_option("-o", "--output_file",
                   help="Path to save plotted rasters.")
 (options, args) = parser.parse_args()
@@ -28,6 +32,7 @@ if npz_file is None:
   exit(-1)
 var_name = options.variable_name
 indices = np.array(options.indices.split(",")).astype("int")
+isAnimate = options.animate
 out_file = options.output_file
 
 print("") 
@@ -55,20 +60,44 @@ bands = rasters.shape[3]
 rasters = rasters[indices, :, :, :]
 n_rasters = rasters.shape[0]
 
+# Can only animate one sample at a time
+if n_rasters > 1:
+  print("Can only animate a single raster at a time. When using '--animate', select a single index with '--indices'.\nExiting...")
+  exit(-2)
 
 ########
 # Plot #
 ########
 
-fig, axs = plt.subplots(n_rasters, bands, figsize=(bands * 3, n_rasters * 3), squeeze=False)
-for i, raster in enumerate(rasters):
-  for b in range(bands):
-    axs[i, b].imshow(raster[:,:,b])
-    axs[i, b].set_xticks([])
-    axs[i, b].set_yticks([])
+# Option 1: animation
+if isAnimate:
+  # Reshape to (rows, cols, bands)
+  raster = rasters[0]
+  fig = plt.figure()
+  im = plt.imshow(raster[:,:,0])
+  # Define what happens in each animation frame
+  def updatefig(b):
+    im.set_array(raster[:,:,b])
+    return [im]
+  # Create animation
+  ani = animation.FuncAnimation(fig, updatefig, frames=bands, interval=100, blit=True)
 
-plt.tight_layout()
+# Option 2: static
+else:
+  fig, axs = plt.subplots(n_rasters, bands, figsize=(bands * 3, n_rasters * 3), squeeze=False)
+  for i, raster in enumerate(rasters):
+    for b in range(bands):
+      axs[i, b].imshow(raster[:,:,b])
+      axs[i, b].set_xticks([])
+      axs[i, b].set_yticks([])
+
+  plt.tight_layout()
+
+
 if out_file is None:
   plt.show()
 else:
-  plt.savefig(out_file)
+  if isAnimate:
+    ani.save(out_file)
+  else:
+    plt.savefig(out_file)
