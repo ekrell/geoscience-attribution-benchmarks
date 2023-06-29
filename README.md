@@ -156,24 +156,7 @@ Data source: https://github.com/djgagne/ams-ml-python-course
 
 
 ## Extra Utilities
-
-### Example: Concatenate 2 rasters along the channels
-
-Many models take in multi-channel rasters where the channels might not be related to other other. That is, there is no spatial or temporal meaning to their adjacency. We can create synthetic samples like this by generating distinct samples and then concatenating them along the channels. 
-
-    python utils/cat_rasters.py \
-        -a out/cmds_example_2D.npz \         # Raster A
-        -b out/cmds_example_3D-spatial.npz \ # Raster B
-        -o out/cmds_example_concat.npz       # Concat (A, B)
-
-### Example: crop a raster
-
-    python utils/crop_rasters.py \
-        -i out/cmds_example_2D.npz \     # Path to input raster
-        -o out/cmds_example_crop.npz \   # To save cropped raster
-        --low_row 10 \                   # Lower index of rows 
-        --high_row 40                    # Higher index of rows
-   
+ 
 ### Example: expand raster dimensions
 
 Most of these tools assume a `.npz` file with a variable that contains an
@@ -187,6 +170,30 @@ the dimensions of the raster, either on the left or right.
         --expand_right                     # Choice to expand on right axis
 
 
+### Example: Concatenate 2 rasters along the channels
+
+Many models take in multi-channel rasters where the channels might not be related to other other. That is, there is no spatial or temporal meaning to their adjacency. We can create synthetic samples like this by generating distinct samples and then concatenating them along the channels. 
+
+    python utils/cat_rasters.py \
+        -a out/cmds_example_2D.npz \         # Raster A
+        -b out/cmds_example_3D-spatial.npz \ # Raster B
+        -o out/cmds_example_concat.npz       # Concat (A, B)
+
+
+### Example: crop a raster
+
+    python utils/crop_rasters.py \
+        -i out/cmds_example_2D.npz \     # Path to input raster
+        -o out/cmds_example_crop.npz \   # To save cropped raster
+        --low_row 10 \                   # Lower index of rows 
+        --high_row 40                    # Higher index of rows
+
+### Example: Reorder a raster's bands
+
+    python utils/reorder_rasters.py \
+        -i out/cmds_example_3D-spatial.npz \    # Path to input raster
+        -o out/cmds_example_reordered.npz \     # To save reordered raster
+        -r 5,4,2,1                              # Specified band order (skips allowed)
 
 
 
