@@ -164,8 +164,16 @@ Many models take in multi-channel rasters where the channels might not be relate
     python utils/cat_rasters.py \
         -a out/cmds_example_2D.npz \         # Raster A
         -b out/cmds_example_3D-spatial.npz \ # Raster B
-        -o out/cmds_example_concag.npz       # Concat (A, B)
+        -o out/cmds_example_concat.npz       # Concat (A, B)
 
+### Example: crop a raster
+
+    python utils/crop_rasters.py \
+        -i out/cmds_example_2D.npz \     # Path to input raster
+        -o out/cmds_example_crop.npz \   # To save cropped raster
+        --low_row 10 \                   # Lower index of rows 
+        --high_row 40                    # Higher index of rows
+   
 
 
 
