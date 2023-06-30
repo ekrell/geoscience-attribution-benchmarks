@@ -164,6 +164,13 @@ Data source: https://github.com/djgagne/ams-ml-python-course
 
 ![out/cmds_example_3D-spatial.png](out/cmds_example_3D-spatial.png)
 
+**Plot an interactive volume rendering**
+
+    python utils/render_raster.py \
+        -f out/cmds_examle_3D-spatial.npz \  # Synthetic samples
+        -i 2                                 # Sample index to view
+
+![out/rendered_example.png](out/rendered_example.png)
 
 ## Extra Utilities
  
