@@ -170,9 +170,26 @@ to shift the cells for each time step.
     python utils/plot_samples.py \
         -r out/example_timeseries.npz \      # Synthetic samples
         -i 0 \                               # Indices to plot
-        -o out/example_timeseries.npz        # Where to save plot
+        -o out/example_timeseries.png        # Where to save plot
 
 ![out/example_timeseries.png](out/example_timeseries.png)
+
+**Crop the samples**
+
+- Shifting causes the boundaries to be NaNs.
+
+    python utils/crop_rasters.py \
+        -i out/example_timeseries.npz \        # Path to input raster
+        -o out/example_timeseries_crop.npz \   # To save cropped raster
+        --low_row 8 \                          # Lower index of rows 
+        --low_col 8                            # Lower index of cols
+
+    python utils/plot_samples.py \
+        -r out/example_timeseries_crop.npz \   # Synthetic samples
+        -i 0 \                                 # Indices to plot
+        -o out/example_timeseries_crop.png     # Where to save plot
+
+![out/example_timeseries_crop.png](out/example_timeseries_crop.png)
 
 
 ## Extra Utilities
