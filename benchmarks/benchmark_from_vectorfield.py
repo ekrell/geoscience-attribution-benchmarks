@@ -89,18 +89,27 @@ def main():
     # Init first time step (t = 0) to original raster
     rasters_ts[sample_idx, :, :, 0] = rasters[sample_idx,:,:,0]
  
-    # For each time step, determine values of each (row, col)
-    # by applying the vector field
+    # Iterate over time steps
     for timestep in range(1, time_steps):
+      # Shift cell values based on vector field
       for row in range(rows):
         for col in range(cols):
-          row_new = int(row + field_y[row, col])
-          col_new = int(col + field_x[row, col])
-          try:
-            rasters_ts[sample_idx, row_new, col_new, timestep] = \
-               rasters_ts[sample_idx, row, col, timestep - 1]
-          except:
-            pass
+          row_old = int(row - field_y[row, col])
+          col_old = int(col - field_x[row, col])
+          if row_old >= 0 and row_old < rows and col_old >= 0 and col_old < cols:
+            rasters_ts[sample_idx, row, col, timestep] = \
+              rasters_ts[sample_idx, row_old, col_old, timestep - 1]
+
+      # Interpolate grid to remove NaNs
+      # Interpolate the NaNs
+      xx, yy = np.meshgrid(np.arange(0, cols), 
+                           np.arange(0, rows))
+      valids = np.ma.masked_invalid(rasters_ts[sample_idx, :, :, timestep])
+      x_valid = xx[~valids.mask]
+      y_valid = yy[~valids.mask]
+      arr = valids[~valids.mask]
+      rasters_ts[sample_idx, :, :, timestep] = interpolate.griddata((x_valid, y_valid), 
+                                                arr.ravel(), (xx, yy), method="cubic") 
 
   # Write
   np.savez(output_file, **{output_varname: rasters_ts})
