@@ -27,11 +27,6 @@ valid_cmds = {
   "BLUR": {
     "sigma" : None,
   },
-  "TIMESHIFT": {
-    "direction_degrees": None,
-    "magnitude_pixels": None,
-    "num_shifts": None,
-  },
   "CROP": {
     "low_row": None,
     "high_row": None,
@@ -233,19 +228,6 @@ def main():
       sigma = float(args["sigma"])
       # Run command
       rasters = np.array([ndimage.gaussian_filter(raster, sigma=sigma) for raster in rasters])
-
-    if cmd == "TIMESHIFT":
-      # Verify compatability
-      if bands > 1:
-        print("This tool only supports 3D (row, col, bands) rasters. Using `TIMESHIFT` when bands > 1 creates a 4D raster.\nSkipping command...")
-        exit(-2)
-      # Setup arguments
-      move_dir_deg = float(args["direction_degrees"])
-      move_mag_px = float(args["magnitude_pixels"])
-      num_shifts = int(args["num_shifts"])
-      # Run command
-      rasters = time_shift(rasters, num_shifts, move_dir_deg, move_mag_px)
-      bands = rasters.shape[3]
 
     if cmd == "CROP":
       # Setup arguments

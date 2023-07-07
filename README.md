@@ -106,47 +106,16 @@ Data source: https://github.com/djgagne/ams-ml-python-course
 ![out/cmds_example_2D.png](out/cmds_example_2D.png)
 
 
-### Example: create 3D synthetic benchmark with temporal relationships across channels
+### Example: create 3D synthetic benchmark with spatial autocorrelation across channels
 
 **View example commands file**
 
-    RASTER samples=10 rows=50 cols=50 bands=1
-    SEED coords=10,10 value=0.2 threshold=0.9 decay=0.01 value_dist=0.2
-    SEED coords=20,20 value=0.6 threshold=0.9 decay=0.01 value_dist=0.1
-    SEED coords=40,20 value=0.8 threshold=0.9 decay=0.01 value_dist=0.3
-    BLUR sigma=0.75
-    TIMESHIFT direction_degrees=20 magnitude_pixels=2 num_shifts=5 random_dist=1
-    CROP low_row=10 high_row=40 low_col=4 high_col=39
-
-**Generate synthetic samples**
-
-    python benchmarks/benchmark_from_commands.py \
-        -f data/cmds_example_3D-temporal.dat \    # Path to commands
-        -o out/cmds_example_3D-temporal.npz       # To save synthetic samples
-
-**Plot generated samples**
-
-    python utils/plot_samples.py \
-        -r out/cmds_example_3D-temporal.npz \     # Synthetic samples
-        -i 0,1 \                                  # Indices to plot
-        -o out/cmds_example_3D-temporal.png       # Where to save plot
-
-![out/cmds_example_3D-temporal.png](out/cmds_example_3D-temporal.png)
-
-**Plot a single sample as animation**
-
-    python utils/plot_samples.py \
-        -r out/cmds_example_3D-temporal.npz \     # Synthetic samples
-        -i 3 \                                    # Can animate only one at a time
-        --animate \                               # Will create a looping gif
-        -o out/cmds_example_3D-temporal.gif
-
-![out/cmds_example_3D-temporal.gif](out/cmds_example_3D-temporal.gif)
-
-
-### Example: create 3D synthetic benchmark with spatial relationships across channels
-
-**View example commands file**
+    cat data/cmds_example_3D-spatial.dat
+    RASTER samples=10 rows=50 cols=50 bands=6
+    SEED coords=10,10,3 value=0.2 threshold=0.9 decay=0.01 value_dist=0.2
+    SEED coords=20,20,3 value=0.6 threshold=0.9 decay=0.01
+    SEED coords=40,40,3 value=0.8 threshold=0.9 decay=0.04 value_dist=0.05
+    SEED coords=40,30,3 value=0.9 threshold=0.9 decay=0.04 value_dist=0.05
 
 
 **Generate synthetic samples**
@@ -172,6 +141,40 @@ Data source: https://github.com/djgagne/ams-ml-python-course
 
 ![out/rendered_example.png](out/rendered_example.png)
 
+
+### Example: create a 3D synthetic benchmark with temporal autocorrelation across channels
+
+This example converts a single-channel rasters to multi-channel where each channel
+represents the spatial data at subsequent discrete time steps. The vector field 
+contains the x and y components for movement at each cell. These vectors are used
+to shift the cells for each time step. 
+
+**Obtain a vector field**
+
+- The vector field is raster data with shape `(2, rows, cols)`.
+- Where the 2-length first dimension organizes x and y components, respectively.
+- It should be stored as a numpy `.npz` file.
+- There is a provided example file `out/example_timeseries.npz`. 
+- In the future, we'll provide some tools for generating these. 
+
+**Generate synthetic samples**
+
+    python benchmarks/benchmark_from_vectorfield.py \
+        -r out/example_of_expanded.npz \      # Path to input raster 
+        -v data/example_vectorfield.npz \     # Path to input vector field
+        --time_steps 6 \                      # Number of time steps to generate
+        -o out/example_timeseries.npz         # To save output raster samples
+
+**Plot generated samples**
+
+    python utils/plot_samples.py \
+        -r out/example_timeseries.npz \      # Synthetic samples
+        -i 0 \                               # Indices to plot
+        -o out/example_timeseries.npz        # Where to save plot
+
+![out/example_timeseries.png](out/example_timeseries.png)
+
+
 ## Extra Utilities
  
 ### Example: expand raster dimensions
@@ -187,7 +190,7 @@ the dimensions of the raster, either on the left or right.
         --expand_right                     # Choice to expand on right axis
 
 
-### Example: Concatenate 2 rasters along the channels
+### Example: concatenate 2 rasters along the channels
 
 Many models take in multi-channel rasters where the channels might not be related to other other. That is, there is no spatial or temporal meaning to their adjacency. We can create synthetic samples like this by generating distinct samples and then concatenating them along the channels. 
 
@@ -211,9 +214,4 @@ Many models take in multi-channel rasters where the channels might not be relate
         -i out/cmds_example_3D-spatial.npz \    # Path to input raster
         -o out/cmds_example_reordered.npz \     # To save reordered raster
         -r 5,4,2,1                              # Specified band order (skips allowed)
-
-
-
-
-
 

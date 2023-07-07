@@ -67,7 +67,8 @@ def main():
     opacity=0.1,
   )
   # Add data, with adjustable threshold
-  p.add_mesh_threshold(grid,
+  p.add_mesh_threshold(
+    grid,
   )
   # Show
   p.show()
