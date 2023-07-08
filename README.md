@@ -176,7 +176,7 @@ to shift the cells for each time step.
 
 **Crop the samples**
 
-- Shifting causes the boundaries to be NaNs.
+Shifting causes the boundaries to be NaNs.
 
     python utils/crop_rasters.py \
         -i out/example_timeseries.npz \        # Path to input raster
