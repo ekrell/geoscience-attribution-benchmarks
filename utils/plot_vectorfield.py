@@ -75,6 +75,8 @@ def main():
     X, Y = np.meshgrid(range(field_x.shape[1]), range(field_x.shape[0]))
     ax.quiver(X, Y, field_x.flatten(), field_y.flatten())      
     ax.invert_yaxis()
+
+  # If (x, y, z) components -> 3D plot
   elif shape[0] == 3:
     pass
     ax = plt.figure(figsize=(10,10)).add_subplot(projection="3d",)
