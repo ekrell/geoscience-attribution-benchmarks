@@ -40,7 +40,7 @@ print("Rasters file: {}".format(npz_file))
 print("  Using variable name: {}".format(var_name))
 print("  Will plot {} rasters".format(len(indices)))
 if out_file is None:
-  print("No output file specified -> will display plot")
+  print("No output file specified -> will display plot.")
 else:
   print("Output plot file: {}".format(out_file))
 

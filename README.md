@@ -157,6 +157,14 @@ to shift the cells for each time step.
 - There is a provided example file `out/example_timeseries.npz`. 
 - In the future, we'll provide some tools for generating these. 
 
+**Plot vector field**
+
+    python utils/plot_vectorfield.py \
+        -v data/example_vectorfield.npz \   # Path to input vector field
+         -o out/example_vectorfield.png     # To save plot
+
+![out/example_vectorfield.png](out/example_vectorfield.png)
+
 **Generate synthetic samples**
 
     python benchmarks/benchmark_from_vectorfield.py \
