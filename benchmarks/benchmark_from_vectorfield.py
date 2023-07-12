@@ -101,7 +101,6 @@ def main():
               rasters_ts[sample_idx, row_old, col_old, timestep - 1]
 
       # Interpolate grid to remove NaNs
-      # Interpolate the NaNs
       xx, yy = np.meshgrid(np.arange(0, cols), 
                            np.arange(0, rows))
       valids = np.ma.masked_invalid(rasters_ts[sample_idx, :, :, timestep])

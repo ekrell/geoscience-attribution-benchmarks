@@ -82,8 +82,12 @@ def main():
     ax = plt.figure(figsize=(10,10)).add_subplot(projection="3d",)
     X, Y, Z = np.meshgrid(range(cols), range(rows), range(bands))
     ax.quiver(
-      X[::stride, ::stride], Y[::stride, ::stride], Z[::stride, ::stride], 
-      field[0][::stride, ::stride], field[1][::stride, ::stride], field[2][::stride, ::stride], 
+      X[::stride_rows, ::stride_cols], 
+      Y[::stride_rows, ::stride_cols], 
+      Z[::stride_rows, ::stride_cols], 
+      field[0][::stride_rows, ::stride_cols], 
+      field[1][::stride_rows, ::stride_cols], 
+      field[2][::stride_rows, ::stride_cols], 
       normalize=True)
   else: 
     print("Expected shape of either (2, rows, cols) or (3, rows, cols, bands).\nExiting...")

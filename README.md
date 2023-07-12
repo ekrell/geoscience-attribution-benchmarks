@@ -161,7 +161,7 @@ to shift the cells for each time step.
 
     python utils/plot_vectorfield.py \
         -v data/example_vectorfield.npz \   # Path to input vector field
-         -o out/example_vectorfield.png     # To save plot
+        -o out/example_vectorfield.png      # To save plot
 
 ![out/example_vectorfield.png](out/example_vectorfield.png)
 
@@ -198,6 +198,38 @@ Shifting causes the boundaries to be NaNs.
         -o out/example_timeseries_crop.png     # Where to save plot
 
 ![out/example_timeseries_crop.png](out/example_timeseries_crop.png)
+
+
+### Example: create a 4D (packaged as 3D) synthetic benchmark with temporal and spatial autocorrelation across channels
+
+This example is created by using a 3D vector field with `(x, y, z)` motion components that is applied to a multi-channel raster. That is, a 3D volume is converted to a time series based on the motion commands at multiple discrete time steps. The result is 4D data: (rows, cols, channels, time steps). 
+
+However, many deep learning architectures assume a (rows, cols, channels) input shape. So it is not uncommon to package the 4D data as a 3D raster. That means that the 3D volume and time steps are interleaved together, breaking up the autocorrelation. For a real example, see the [FogNet 3D CNN for coastal fog prediction](https://gridftp.tamucc.edu/fognet/).
+
+**Obtain a vector field**
+
+- The vector field is raster data with shape (3, rows, cols, bands).
+- Where the 3-length first dimension organizes x, y and z components, respectively. 
+- It should be stored as a `.npz` file.
+- There is an example file `out/example_timeseries_3D.npz`
+- In the future, expect tools to generate these.
+
+**Plot vector field**
+
+    python utils/plot_vectorfield.py \
+        -v data/example_vectorfield_3D.npz \   # Path to input vector field
+        -o out/example_vectorfield_3D.png  \   # To save plot
+        -d 5                                   # Divide by this to plot fewer arrows
+
+**Generate synthetic samples: 3D volume**
+
+
+**Plot generated samples**
+
+**Generate synthetic samples: time series**
+
+**Plot generated samples**
+
 
 
 ## Extra Utilities
