@@ -231,8 +231,6 @@ Before applying the vector field, we'll make another set of 3D volume samples. T
         -f data/cmds_example_3D-spatial_2.dat \     # Path to commands
         -o out/cmds_example_3D-spatial_2.npz        # To save synthetic samples
 
-**Plot generated samples**
-
     python utils/render_raster.py \
         -f out/cmds_example_3D-spatial_2.npz \   # Synthetic samples
         -i 0                                     # Sample index to view
@@ -241,7 +239,21 @@ Before applying the vector field, we'll make another set of 3D volume samples. T
 
 **Generate synthetic samples: time series**
 
-**Plot generated samples**
+    python benchmarks/benchmark_from_vectorfield.py \
+        -r out/cmds_example_3D-spatial_2.npz \             # Path to input raster
+        -v data/example_vectorfield_3D.npz \               # Path to input vector field
+        --time_steps 4 \                                   # Number of time steps to generate
+        -o out/cmds_example_3D-spatial-timeseries.npz      # To save output raster samples
+
+Since the vector field pushes points toward the bottom and middle, we can see the size of the raster decrease dramatically with each time step. Since we generated 4 time steps, the three time steps are concatenated together.
+
+    python utils/render_raster.py \
+        -f out/cmds_example_3D-spatial-timeseries.npz \    # Synthetic samples
+        -i 0                                               # Sample index to plot
+
+![out/rendered_example_3.png](out/rendered_example_3.png)
+
+**Crop**
 
 
 
