@@ -221,7 +221,13 @@ However, many deep learning architectures assume a (rows, cols, channels) input 
         -o out/example_vectorfield_3D.png  \   # To save plot
         -d 5                                   # Divide by this to plot fewer arrows
 
+![out/example_vectorfield_3D.png](out/example_vectorfield_3D.png)
+
 **Generate synthetic samples: 3D volume**
+
+Before applying the vector field, we'll make another set of 3D volume samples. The dimensions need to be larger than required for the final benchmark since the application of the vectorfield will create NaNs on the edges in rows, cols and bands.
+
+
 
 
 **Plot generated samples**
