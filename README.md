@@ -227,14 +227,17 @@ However, many deep learning architectures assume a (rows, cols, channels) input 
 
 Before applying the vector field, we'll make another set of 3D volume samples. The dimensions need to be larger than required for the final benchmark since the application of the vectorfield will create NaNs on the edges in rows, cols and bands.
 
-
-
+    python benchmarks/benchmark_from_commands \
+        -f data/cmds_example_3D-spatial_2.dat \     # Path to commands
+        -o out/cmds_example_3D-spatial_2.npz        # To save synthetic samples
 
 **Plot generated samples**
 
+    python utils/render_raster.py \
+        -f out/cmds_example_3D-spatial_2.npz \   # Synthetic samples
+        -i 0                                     # Sample index to view
 
 ![out/rendered_example_2.png](out/rendered_example_2.png)
-
 
 **Generate synthetic samples: time series**
 
