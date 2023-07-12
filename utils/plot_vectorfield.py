@@ -92,7 +92,6 @@ def main():
   else: 
     print("Expected shape of either (2, rows, cols) or (3, rows, cols, bands).\nExiting...")
     exit(-1)
-    
 
   if output_file is None:
     plt.show()

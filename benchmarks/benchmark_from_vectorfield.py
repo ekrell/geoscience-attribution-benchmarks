@@ -94,7 +94,7 @@ def main():
       # Shift cell values based on vector field
       for row in range(rows):
         for col in range(cols):
-          row_old = int(row - field_y[row, col])
+          row_old = int(row + field_y[row, col])
           col_old = int(col - field_x[row, col])
           if row_old >= 0 and row_old < rows and col_old >= 0 and col_old < cols:
             rasters_ts[sample_idx, row, col, timestep] = \
