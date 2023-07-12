@@ -42,6 +42,8 @@ parser.add_option(      "--low_band",
 parser.add_option(      "--high_band",
                   default=None,
                   help="Higher index of bands.")
+parser.add_option(      "--band_keys_varname",
+                  help="Name of variable name in input '.npz' with keys for band IDs")
 (options, args) = parser.parse_args()
 
 
@@ -56,6 +58,7 @@ if output_file is None:
 
 input_varname = options.input_varname
 output_varname = options.output_varname
+band_keys_varname = options.band_keys_varname
 
 # Load raster
 dataset = np.load(input_file)
@@ -82,12 +85,36 @@ print("Raster has shape: {}.".format(shape))
 print("Crop bounds: ({}-{}),  ({}-{}),  ({}-{}).  ({}-{})).".format(
       low_sample, high_sample, low_row, high_row,
       low_col, high_col, low_band, high_band))
-   
-# Crop
-raster = raster[low_sample:high_sample,
+
+def crop(raster, low_sample, high_sample, low_row, high_row,
+         low_col, high_col, low_band, high_band):
+  return raster[low_sample:high_sample,
                 low_row:high_row,
                 low_col:high_col,
                 low_band:high_band]
+
+# If using band keys
+if band_keys_varname is not None:
+  band_keys = dataset[band_keys_varname]
+  uniq_ts = np.unique(band_keys[:,1])
+  rasters_ = []
+  for ts in uniq_ts:
+    # Bands with this ts
+    band_idxs = np.array(np.where(band_keys[:,1] == ts))
+    band_idxs = band_idxs.flatten()
+    # Extract for ts
+    raster_ = raster[:, :, :, band_idxs]
+    raster_ = crop(raster_, low_sample, high_sample, low_row, high_row,
+      low_col, high_col, low_band, high_band)
+    rasters_.append(raster_)
+  raster = np.concatenate(rasters_, axis=3)
+
+# Crop normally  
+else:
+  # Crop
+  raster = crop(raster, low_sample, high_sample, low_row, high_row,
+    low_col, high_col, low_band, high_band)
+
 print("Cropped raster has shape: {}.".format(raster.shape))
 
 # Write

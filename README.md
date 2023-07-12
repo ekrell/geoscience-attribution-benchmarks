@@ -255,6 +255,27 @@ Since the vector field pushes points toward the bottom and middle, we can see th
 
 **Crop**
 
+If the vector field moves the pixels a lot, you may need to crop much of the data to get complete (non-NaN) data. It makes sense that you need a larger region of the earth for processes to happen than the smaller region your (synthetic) sensor captured. In this example, we started with a 16-channel volume and end up with only 2 channels. With 4 time steps, a raster with 8 channels total. 
+
+Here, we need to crop the bands for each time step separately. Otherwise, does not make sense to remove from bottom of t0 and from top of tN. We use the `--band_keys_varname` option to specify the name of a variable name within the input `.npz` file that leads to a list of tuples of (band, timestep) that lets the program apply the band-wise cropping to each time step's volume separately. These are then concatenated together for output. The `band_keys` is added to the `.npz` file when using multi-channel data as input to `benchmarks/benchmark_from_vectorfield.py`.
+
+    python utils/crop_rasters.py \ 
+        -i out/cmds_example_3D-spatial-timeseries.npz \    # Path to input raster
+        -o cmds_example_3D-spatial-timeseries.npz \        # To save cropped raster
+        --band_keys_varname band_keys \                    # Name of `.npz` var with band, timestep keys
+        --low_row 19 \                                     # Lower index of rows
+        --high_row 31 \                                    # Higher index of rows
+        --low_col 19 \                                     # Lower index of cols
+        --high_col 31 \                                    # Higher index of cols
+        --high_band 2                                      # Higher index of bands
+
+
+    python utils/render_raster.py \
+        -f out/cmds_example_3D-spatial-timeseries_crop.npz \    # Synthetic samples
+        -i 0                                                    # Sample index to plot
+
+![out/rendered_example_4.png](out/rendered_example_4.png)
+
 
 
 ## Extra Utilities
