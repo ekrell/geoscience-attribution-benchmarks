@@ -189,7 +189,7 @@ Shifting causes the boundaries to be NaNs.
     python utils/crop_rasters.py \
         -i out/example_timeseries.npz \        # Path to input raster
         -o out/example_timeseries_crop.npz \   # To save cropped raster
-        --low_row 8 \                          # Lower index of rows 
+        --high_row 42 \                        # Lower index of rows 
         --low_col 8                            # Lower index of cols
 
     python utils/plot_samples.py \
