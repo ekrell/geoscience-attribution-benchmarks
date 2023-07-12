@@ -136,8 +136,8 @@ Data source: https://github.com/djgagne/ams-ml-python-course
 **Plot an interactive volume rendering**
 
     python utils/render_raster.py \
-        -f out/cmds_examle_3D-spatial.npz \  # Synthetic samples
-        -i 2                                 # Sample index to view
+        -f out/cmds_example_3D-spatial.npz \  # Synthetic samples
+        -i 2                                  # Sample index to view
 
 ![out/rendered_example.png](out/rendered_example.png)
 
@@ -231,6 +231,10 @@ Before applying the vector field, we'll make another set of 3D volume samples. T
 
 
 **Plot generated samples**
+
+
+![out/rendered_example_2.png](out/rendered_example_2.png)
+
 
 **Generate synthetic samples: time series**
 
