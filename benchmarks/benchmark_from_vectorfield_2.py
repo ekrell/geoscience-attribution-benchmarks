@@ -104,15 +104,19 @@ def main():
                 rasters_ts[sample_idx, row, col, band, timestep] = \
                   rasters_ts[sample_idx, row_old, col_old, band_old, timestep - 1]
 
-      ## Interpolate grid to remove NaNs
-      #xx, yy = np.meshgrid(np.arange(0, cols), 
-      #                     np.arange(0, rows))
-      #valids = np.ma.masked_invalid(rasters_ts[sample_idx, :, :, timestep])
-      #x_valid = xx[~valids.mask]
-      #y_valid = yy[~valids.mask]
-      #arr = valids[~valids.mask]
-      #rasters_ts[sample_idx, :, :, timestep] = interpolate.griddata((x_valid, y_valid), 
-      #                                          arr.ravel(), (xx, yy), method="cubic") 
+      # Interpolate grid to remove NaNs
+      xx, yy, zz = np.meshgrid(np.arange(0, cols), 
+                               np.arange(0, rows),
+                               np.arange(0, bands),
+        )
+      valids = np.ma.masked_invalid(rasters_ts[sample_idx, :, :, :, timestep])
+      x_valid = xx[~valids.mask]
+      y_valid = yy[~valids.mask]
+      z_valid = zz[~valids.mask]
+      arr = valids[~valids.mask]
+      rasters_ts[sample_idx, :, :, :, timestep] = \
+          interpolate.griddata((x_valid, y_valid, z_valid), 
+          arr.ravel(), (xx, yy, zz), method="linear") 
 
   # Pack 4D into 3D data
   packed = np.zeros((n_samples, rows, cols, bands * time_steps))
