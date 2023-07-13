@@ -60,59 +60,126 @@ def main():
   if len(rasters.shape) != 4:
     print("Expected raster data shape: (samples, rows, cols, bands).\nExiting...")
     exit(-2)
-  if rasters.shape[3] > 1:
-    print("Converting multi-band rasters to time series is not yet supported.\nExiting...")
-    exit(-2)
 
   # Load vector field
   vector_data = np.load(vector_file)
   vector = vector_data[vector_varname]
-  if len(vector.shape) != 3:
-    print("Expected vector data shape: (2, rows, cols) where [0,:,:] is for x components and [1,:,:] is for y components.\nExiting...")
-    exit(-2)
+
   field_x = vector[0]
   field_y = vector[1]
+  if vector.shape[0] == 3:
+    field_z = vector[2]
+  else:
+    field_z = None
 
   n_samples, rows, cols, bands = rasters.shape
 
   ######################
+  #  Case 1: 2D Data   #
   # Apply Vector Field #
   ######################
-
-  # Init storage for time series rasters
-  rasters_ts = np.ones((n_samples, rows, cols, time_steps))
-  rasters_ts[:] = np.nan
+  if bands == 1:
   
-  # Iterate over samples
-  for sample_idx in range(n_samples):
+    # Init storage for time series rasters
+    rasters_ts = np.ones((n_samples, rows, cols, time_steps))
+    rasters_ts[:] = np.nan
 
-    # Init first time step (t = 0) to original raster
-    rasters_ts[sample_idx, :, :, 0] = rasters[sample_idx,:,:,0]
- 
-    # Iterate over time steps
-    for timestep in range(1, time_steps):
-      # Shift cell values based on vector field
-      for row in range(rows):
-        for col in range(cols):
-          row_old = int(row + field_y[row, col])
-          col_old = int(col - field_x[row, col])
-          if row_old >= 0 and row_old < rows and col_old >= 0 and col_old < cols:
-            rasters_ts[sample_idx, row, col, timestep] = \
-              rasters_ts[sample_idx, row_old, col_old, timestep - 1]
+    # Iterate over samples
+    for sample_idx in range(n_samples):
 
-      # Interpolate grid to remove NaNs
-      xx, yy = np.meshgrid(np.arange(0, cols), 
-                           np.arange(0, rows))
-      valids = np.ma.masked_invalid(rasters_ts[sample_idx, :, :, timestep])
-      x_valid = xx[~valids.mask]
-      y_valid = yy[~valids.mask]
-      arr = valids[~valids.mask]
-      rasters_ts[sample_idx, :, :, timestep] = interpolate.griddata((x_valid, y_valid), 
-                                                arr.ravel(), (xx, yy), method="cubic") 
+      # Init first time step (t = 0) to original raster
+      rasters_ts[sample_idx, :, :, 0] = rasters[sample_idx,:,:,0]
 
-  # Write
-  np.savez(output_file, **{output_varname: rasters_ts})
+      # Iterate over time steps
+      for timestep in range(1, time_steps):
+        # Shift cell values based on vector field
+        for row in range(rows):
+          for col in range(cols):
+            row_old = int(row + field_y[row, col])
+            col_old = int(col - field_x[row, col])
+            if row_old >= 0 and row_old < rows \
+                  and col_old >= 0 and col_old < cols:
+              rasters_ts[sample_idx, row, col, timestep] = \
+                  rasters_ts[sample_idx, row_old, col_old, timestep - 1]
+        
+        # Interpolate grid to remove NaNs
+        xx, yy = np.meshgrid(np.arange(0, cols),
+                             np.arange(0, rows))
+        valids = np.ma.masked_invalid(rasters_ts[sample_idx, :, :, timestep])
+        x_valid = xx[~valids.mask]
+        y_valid = yy[~valids.mask]
+        arr = valids[~valids.mask]
+        rasters_ts[sample_idx, :, :, timestep] = interpolate.griddata((x_valid, y_valid),
+                                                  arr.ravel(), (xx, yy), method="cubic")
+
+    # Write
+    np.savez(output_file, **{output_varname: rasters_ts})
+    print(rasters_ts.shape)
+
+
+  ######################
+  #  Case 2: 3D Data   #
+  # Apply Vector Field #
+  ######################
+  if bands > 1:
+
+    # Init storage for time series rasters
+    rasters_ts = np.ones((n_samples, rows, cols, bands, time_steps))
+    rasters_ts[:] = np.nan
+
+    # Iterate over samples
+    for sample_idx in range(n_samples):
+    
+      # Init first time step (t = 0) to original raster
+      rasters_ts[sample_idx, :, :, :, 0] = rasters[sample_idx]
+
+      # Iterate over time steps
+      for timestep in range(1, time_steps):
+        # Shift cell values based on vector field
+        for row in range(rows):
+          for col in range(cols):
+            for band in range(bands):
+          
+              row_old = int(row + field_y[row, col, band])
+              col_old = int(col - field_x[row, col, band])
+              band_old = int(band - field_z[row, col, band])
+              if row_old >= 0 and row_old < rows \
+                and col_old >= 0 and col_old < cols \
+                and band_old >= 0 and band_old < bands:
+                  rasters_ts[sample_idx, row, col, band, timestep] = \
+                    rasters_ts[sample_idx, row_old, col_old, band_old, timestep - 1]
+
+        # Interpolate grid to remove NaNs
+        xx, yy, zz = np.meshgrid(np.arange(0, cols), 
+                                 np.arange(0, rows),
+                                 np.arange(0, bands),
+          )
+        valids = np.ma.masked_invalid(rasters_ts[sample_idx, :, :, :, timestep])
+        x_valid = xx[~valids.mask]
+        y_valid = yy[~valids.mask]
+        z_valid = zz[~valids.mask]
+        arr = valids[~valids.mask]
+        rasters_ts[sample_idx, :, :, :, timestep] = \
+            interpolate.griddata((x_valid, y_valid, z_valid), 
+            arr.ravel(), (xx, yy, zz), method="linear") 
+
+    # Pack 4D into 3D data
+    packed = np.zeros((n_samples, rows, cols, bands * time_steps))
+    band_keys = np.zeros((bands * time_steps, 2)).astype("int")
+    count = 0
+    for ts in range(time_steps):
+      for band in range(bands):
+        packed[:,:,:,count] = rasters_ts[:,:,:,band,ts]
+        band_keys[count] = (band, ts)
+        count += 1
+    rasters_ts = packed
+
+    # Write
+    key_varname = "band_keys"
+    np.savez(output_file, **{output_varname: rasters_ts, key_varname: band_keys})
+
+
+
 
 if __name__ == "__main__":
   main()
-
