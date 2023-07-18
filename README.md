@@ -277,6 +277,17 @@ Here, we need to crop the bands for each time step separately. Otherwise, does n
 ![out/rendered_example_4.png](out/rendered_example_4.png)
 
 
+## Benchmark Functions (with known attribution maps)
+
+### Example: define a piece-wise linear function based on SST anomaly
+
+    python benchmarks/pwl_from_samples.py \
+        -f out/sst_samples.npz \              # Path to input samples
+        -o out/sst_func-pwl.npz \             # To save function & attributions
+        -p 0,1,2,3                            # Sample indices to plot with attributions
+
+![out/sst_func-pwl.png](out/sst_func-pwl.png)
+
 
 ## Extra Utilities
  

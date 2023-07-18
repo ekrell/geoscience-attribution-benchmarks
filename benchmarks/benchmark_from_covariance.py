@@ -102,8 +102,6 @@ sample_raster[:] = np.nan
 sample_raster[:, coords] = sample_vals
 # Reshape from 1D vector to raster with rows, cols, bands
 sample_raster = np.reshape(sample_raster, (n_samples, rows, cols, bands))
-print(sample_raster.shape)
-
 
 #########
 # Write #

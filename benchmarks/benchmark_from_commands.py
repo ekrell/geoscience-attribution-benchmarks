@@ -252,12 +252,6 @@ def main():
       # 
       rasters = rasters[:, int(lrow):int(hrow), int(lcol):int(hcol), int(lband):int(hband)]
 
-       
-     
-
-
-
-
   ########
   # Save #
   ########
@@ -266,10 +260,6 @@ def main():
     rasters.shape[0], rasters.shape[1], rasters.shape[2], rasters.shape[3]))
   print("To output file: {}.".format(out_file))
   np.savez(out_file, samples=rasters)
-
-  
-
-
 
 if __name__ == "__main__":
   main()
