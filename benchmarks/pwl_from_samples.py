@@ -78,7 +78,8 @@ def gen_pwl(samples, n_breaks):
         cov,                     # Spatially related via covariance
         1)                       # One single breakpoint value (ki)
 
-  # Make random PWL breakpoint locations (spatially correlated)
+  # Random break points based on the spatial structure embedded in X
+  # Thus, each pixel's breakpoints are spatially dependent
   breaks = np.random.multivariate_normal(
       np.zeros(n_valid_cells),   # Breakpoint values for every cell
       cov,                       # Spatially related via covariance
@@ -103,9 +104,12 @@ def gen_pwl(samples, n_breaks):
     # Otherwise, multiple breakpoint case -> piece-wise linear
     else:
       # Set PWL breakpoint edges (each pixel's Ci has own edges)
+      # These edges are via the emperical distribution of that pixel's values
       ecdf = ECDF(x)
       f1 = ecdf.y
       y1 = ecdf.x
+      # For each breakpoint probability, get the x-value with that probability
+      # Based on the emperical distribution of this pixel's value distribution
       l = interp1d(f1, y1)(breaks[:, cell_idx])
       edges = np.zeros(n_breaks + 2)
       # One edge must be -INF
@@ -134,24 +138,24 @@ def gen_pwl(samples, n_breaks):
         # Calculate the contribution of the cell
         attrib[sample_idxs, cell_idx] = weights[cell_idx, bin_idx] * x[sample_idxs] 
 
-      ### Evaluate attribution within edges (-INF, 0)
-      ##for bin_idx in range(n_edges_leqzero - 1, -1, -1):
-      ##  idxs = np.where(x_bin_idxs < bin_idx)
-      ##  # Add contribution for Ci += weight * x
-      ##  attrib[i, idxs] = \
-      ##      attrib[i, idxs] + \
-      ##      weights[i, bin_idx] * \
-      ##      np.maximum(x[idxs] - edges[bin_idx + 1],
-      ##             edges[bin_idx] - edges[bin_idx + 1])
-      ### Evaluate attribution within edges [0, INF)
-      ##for bin_idx in range(n_edges_leqzero, max(x_bin_idxs)):
-      ##  idxs = np.where(x_bin_idxs >= bin_idx)
-      ##  # Add contribution for Ci += weight * x
-      ##  attrib[i, idxs] = \
-      ##      attrib[i, idxs] + \
-      ##      weights[i, bin_idx] * \
-      ##      np.minimum(x[idxs] - edges[bin_idx],
-      ##             edges[bin_idx + 1] - edges[bin_idx])
+      # Evaluate attribution within edges (-INF, 0)
+      #for bin_idx in range(n_edges_leqzero - 1, -1, -1):
+      #  sample_idxs = np.where(x_bin_idxs < bin_idx)
+      #  # Add contribution for Ci += weight * x
+      #  attrib[sample_idxs, cell_idx] = \
+      #      attrib[sample_idxs, cell_idx] + \
+      #      weights[cell_idx, bin_idx] * \
+      #      np.maximum(x[sample_idxs] - edges[bin_idx + 1],
+      #             edges[bin_idx] - edges[bin_idx + 1])
+      ## Evaluate attribution within edges [0, INF)
+      #for bin_idx in range(n_edges_leqzero, max(x_bin_idxs)):
+      #  sample_idxs = np.where(x_bin_idxs >= bin_idx)
+      #  # Add contribution for Ci += weight * x
+      #  attrib[sample_idxs, cell_idx] = \
+      #      attrib[sample_idxs, cell_idx] + \
+      #      weights[cell_idx, bin_idx] * \
+      #      np.minimum(x[sample_idxs] - edges[bin_idx],
+      #             edges[bin_idx + 1] - edges[bin_idx])
 
   # Compute output y value for each sample
   y = np.zeros(n_samples)
