@@ -283,6 +283,7 @@ Here, we need to crop the bands for each time step separately. Otherwise, does n
 
     python benchmarks/pwl_from_samples.py \
         -f out/sst_samples.npz \              # Path to input samples
+        -k 5 \                                # Number of PWL breakpoints 
         -o out/sst_func-pwl.npz \             # To save function & attributions
         -p 0,1,2,3                            # Sample indices to plot with attributions
 
