@@ -34,32 +34,30 @@ pwl_edges = pwl["edges"]
 start = pwl_edges[1]
 stop = pwl_edges[-2]
 
-x = np.arange(start, stop, 0.005)
-x_bin_idxs = np.digitize(x, pwl_edges).flatten()
+x = np.arange(start, stop, 0.01)
+x_bin_idxs = np.digitize(x, pwl_edges).flatten() - 1
+n_samples = len(x)
 
 fig, axs = plt.subplots(1, n_idxs, squeeze=False, figsize=(4 * n_idxs, 4))
 
-for i, idx in enumerate(idxs):
-
-  # Make weights
-  new_weights = pwl_weights[i]
-  #new_weights = np.zeros(len(pwl_weights[0]))
-  #for wi in range(len(pwl_weights[0]) - 2):
-
-  #  e1 = pwl_edges[wi + 1]
-  #  e2 = pwl_edges[wi + 2]
-
-  #  w1 = pwl_weights[idx, wi]
-  #  w2 = pwl_weights[idx, wi + 1]
-
-  #  nw = (w2 - w1) / (e2 - e1) 
-
-  #  new_weights[wi] = nw
-
+for i, cell_idx in enumerate(idxs):
   y = np.zeros(len(x))
-  for xi, bin_idx in enumerate(x_bin_idxs):
-    y[xi] = new_weights[bin_idx] * x[xi] 
+  for xi in range(n_samples):
 
+    value = x[xi]
+    bin_idx = x_bin_idxs[xi]
+    
+    if x[xi] > 0:
+      while pwl_edges[bin_idx] >= 0:
+        y[xi] += pwl_weights[cell_idx, bin_idx] * (value - pwl_edges[bin_idx])
+        value = pwl_edges[bin_idx]
+        bin_idx = bin_idx - 1
+
+    if x[xi] <= 0:
+      while pwl_edges[bin_idx] < 0:
+        y[xi] += pwl_weights[cell_idx, bin_idx] * (pwl_edges[bin_idx + 1] - value)
+        value = pwl_edges[bin_idx + 1]
+        bin_idx = bin_idx + 1
 
   axs[0, i].plot(x, y, color="red")
   axs[0, i].scatter(x, y)
