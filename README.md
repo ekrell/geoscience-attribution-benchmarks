@@ -282,9 +282,10 @@ Here, we need to crop the bands for each time step separately. Otherwise, does n
 ### Example: define a piece-wise linear function based on SST anomaly
 
     python benchmarks/pwl_from_samples.py \
-        -f out/sst_samples.npz \              # Path to input samples
-        -k 5 \                                # Number of PWL breakpoints 
-        -o out/sst_func-pwl.npz \             # To save function & attributions
+        -s out/sst_samples.npz \              # Path to input samples
+        -k 10 \                                # Number of PWL breakpoints 
+        -o out/sst_pwl-out.npz \              # To save outputs & attributions
+        -f out/sst_pwl-fun.npz \              # To save the PWL functions (weights, edges)
         -p 0,1,2,3                            # Sample indices to plot with attributions
 
 ![out/sst_func-pwl.png](out/sst_func-pwl.png)
