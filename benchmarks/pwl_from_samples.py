@@ -132,30 +132,35 @@ def gen_pwl(samples, n_breaks):
       x_bin_idxs = x_bin_idxs - 1
 
       # For each segment of the PWL function
-      for bin_idx in range(n_edges - 1):
-        # Get the samples that fall into that segment (bin)
-        sample_idxs = np.where(x_bin_idxs == bin_idx)
-        # Calculate the contribution of the cell
-        attrib[sample_idxs, cell_idx] = weights[cell_idx, bin_idx] * x[sample_idxs] 
+      #for bin_idx in range(n_edges - 1):
+      #  # Get the samples that fall into that segment (bin)
+      #  sample_idxs = np.where(x_bin_idxs == bin_idx)
 
-      # Evaluate attribution within edges (-INF, 0)
-      #for bin_idx in range(n_edges_leqzero - 1, -1, -1):
-      #  sample_idxs = np.where(x_bin_idxs < bin_idx)
-      #  # Add contribution for Ci += weight * x
-      #  attrib[sample_idxs, cell_idx] = \
-      #      attrib[sample_idxs, cell_idx] + \
-      #      weights[cell_idx, bin_idx] * \
-      #      np.maximum(x[sample_idxs] - edges[bin_idx + 1],
-      #             edges[bin_idx] - edges[bin_idx + 1])
-      ## Evaluate attribution within edges [0, INF)
-      #for bin_idx in range(n_edges_leqzero, max(x_bin_idxs)):
-      #  sample_idxs = np.where(x_bin_idxs >= bin_idx)
-      #  # Add contribution for Ci += weight * x
-      #  attrib[sample_idxs, cell_idx] = \
-      #      attrib[sample_idxs, cell_idx] + \
-      #      weights[cell_idx, bin_idx] * \
-      #      np.minimum(x[sample_idxs] - edges[bin_idx],
-      #             edges[bin_idx + 1] - edges[bin_idx])
+      #  attrib[sample_idxs, cell_idx] = weights[cell_idx, bin_idx] * x[sample_idxs] 
+
+      for sample_idx in range(n_samples):
+        value = x[sample_idx]
+        bin_idx = x_bin_idxs[sample_idx]
+ 
+        if x[sample_idx] > 0:
+          while edges[bin_idx] >= 0:
+            attrib[sample_idx, cell_idx] += weights[cell_idx, bin_idx] \
+                                         * (value - edges[bin_idx])
+            value = edges[bin_idx]
+            bin_idx = bin_idx - 1
+
+        if x[sample_idx] <= 0:
+          while edges[bin_idx] < 0:
+            attrib[sample_idx, cell_idx] += weights[cell_idx, bin_idx] \
+                                         * (edges[bin_idx + 1] - value)
+            value = edges[bin_idx + 1]
+            bin_idx = bin_idx + 1
+
+  #print(sample_cells.shape)
+  #print(attrib.shape)
+  #plt.scatter(sample_cells[:,0], attrib[:, 0])
+  #plt.show()
+  #exit(0)
 
   # Compute output y value for each sample
   y = np.zeros(n_samples)
@@ -178,7 +183,7 @@ def gen_pwl(samples, n_breaks):
   y = y / len(valid_idxs)
   attrib[:] = attrib[:] / len(valid_idxs)
 
-  return y, attrib_maps, weights, edges
+  return y, sample_cells, attrib, attrib_maps, weights, edges
 
 
 # Options
@@ -196,6 +201,8 @@ parser.add_option("-o", "--output_file",
                   help="Path to '.npz' to write output data.")
 parser.add_option("-p", "--plot_idxs",
                   help="Comma-delimited list of sample indices to plot.")
+parser.add_option(     "--plot_cell_idxs",
+                  help="Comma-delimited list of cell's PWL functions to plot.")
 (options, args) = parser.parse_args()
 
 samples_file = options.samples_file
@@ -215,18 +222,31 @@ if plot_idxs is not None:
   plot_idxs = np.array(plot_idxs.split(",")).astype("int")
   n_plots = len(plot_idxs)
 
+plot_cell_idxs = options.plot_cell_idxs
+n_cell_plots = 0
+if plot_cell_idxs is not None:
+  plot_cell_idxs = np.array(plot_cell_idxs.split(",")).astype("int")
+  n_cell_plots = len(plot_cell_idxs)
+
 # Load samples
 samples_npz = np.load(samples_file)
 samples = samples_npz[samples_varname]
 
 # Generate piece-wise linear function and attribution maps
-y, attrib_maps, weights, edges= gen_pwl(samples, n_breaks)
+y, sample_cells, attrib, attrib_maps, weights, edges= gen_pwl(samples, n_breaks)
 
 if n_plots > 0:
   fig, axs = plt.subplots(2, n_plots, figsize=(n_plots * 5, 6), squeeze=False)
   for i in range(n_plots):
     axs[0,i].imshow(samples[i])
     axs[1,i].imshow(attrib_maps[i], cmap="bwr")
+  plt.tight_layout()
+  plt.show()
+
+if n_cell_plots > 0:
+  fig, axs = plt.subplots(1, n_cell_plots, figsize=(n_cell_plots * 5, 6), squeeze=False)
+  for i in range(n_cell_plots):
+    axs[0,i].scatter(sample_cells[:, plot_cell_idxs[i]], attrib[:, plot_cell_idxs[i]])
   plt.tight_layout()
   plt.show()
 
