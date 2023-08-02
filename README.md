@@ -5,6 +5,33 @@ Attribution Benchmarks for Geoscience Modeling
 
 Coming soon
 
+## Related publications
+
+[Neural network attribution methods for problems in geoscience: A novel synthetic benchmark dataset](https://www.cambridge.org/core/journals/environmental-data-science/article/neural-network-attribution-methods-for-problems-in-geoscience-a-novel-synthetic-benchmark-dataset/DDA562FC7B9A2B30710582861920860E)
+
+    @article{mamalakis2022neural,
+      title={Neural network attribution methods for problems in geoscience: A novel synthetic benchmark dataset},
+      author={Mamalakis, Antonios and Ebert-Uphoff, Imme and Barnes, Elizabeth A},
+      journal={Environmental Data Science},
+      volume={1},
+      pages={e8},
+      year={2022},
+      publisher={Cambridge University Press}
+    }
+
+[Investigating the Fidelity of Explainable Artificial Intelligence Methods for Applications of Convolutional Neural Networks in Geoscience](https://journals.ametsoc.org/view/journals/aies/1/4/AIES-D-22-0012.1.xml)
+
+    @article{mamalakis2022investigating,
+      title={Investigating the fidelity of explainable artificial intelligence methods for applications of convolutional neural networks in geoscience},
+      author={Mamalakis, Antonios and Barnes, Elizabeth A and Ebert-Uphoff, Imme},
+      journal={Artificial Intelligence for the Earth Systems},
+      volume={1},
+      number={4},
+      pages={e220012},
+      year={2022}
+    }
+
+
 ## Quick start
 
 ### Example: Create a synthetic dataset based on SST Anomaly data
