@@ -99,6 +99,20 @@ def pwl_build(samples, n_breaks):
     # For each breakpoint probability, get the x-value with that probability
     # Based on the emperical distribution of this pixel's value distribution
     l = interp1d(f1, y1)(breaks[:, cell_idx])
+    # Ensure no -INF
+    while len(l[~np.isinf(l)]) == 0:
+      #print(x)
+      #print(f1)
+      #print(y1)
+      #print(breaks[:, cell_idx])
+      #print(l)
+      breaks[:, cell_idx] = 0.1
+      l = interp1d(f1, y1)(breaks[:, cell_idx])
+      #print(l)
+    l[np.isinf(l)] = np.sort(l[~np.isinf(l)])[0] - 0.01
+    # Ensure unique breakpoints
+    while len(np.unique(l)) != len(l):
+      l += np.random.uniform(0.05, 0.1, size=len(l))
     # One edge must be -INF
     edges[cell_idx, 0] = -1 * np.inf
     # One edge must be INF
@@ -109,13 +123,46 @@ def pwl_build(samples, n_breaks):
     edges[cell_idx, 3:] = np.sort(l)
     # Sort from small to large to organize edges
     edges[cell_idx] = np.sort(edges[cell_idx])
-    edges[cell_idx] = np.unique(edges[cell_idx])
     n_edges = len(edges[cell_idx])
 
   return edges, weights
 
 
 def pwl_eval(samples, edges, weights):
+  '''
+  Evaluates an additive PWL-based function for a set of raster samples,
+  where each grid cell has its own PWL function. The output for the
+  raster is the summation of the PWL function at each cell.
+
+  The function is defined so that the contribution (or, attribution) of
+  each grid cell toward the output is simply the PWL output for that cell.
+  So, this function returns both the output values and attributions. 
+
+  Parameters
+  ----------
+  samples: 4D Numpy float array
+    Set of samples of raster data with shape (n_samples, rows, cols, bands).
+  edges :  2D Numpy float array
+    The locations of the function breakpoints. The shape is
+    (n_cells, n_breaks + 2). The +2 is because we add "-INF" and "INF"
+    to the first and last edges.
+  weights : 2D Numpy float array
+    The weights of the piece-wise linear function. Each raster cell has
+    its own set of weights. There are weights for each bin in the PWL.
+    So the shape is (n_cells, n_breaks + 1).
+
+  Returns
+  -------
+  y : 1D Numpy float array
+    The function output of every input sample. The shape is (n_samples).
+  attrib: 2D Numpy float array
+    Each sample has attributions for each valid (non-Nan) grid cell. 
+    The shape is (n_samples, n_valid_cells).
+  attrib_maps: 4D Numpy float array
+    This is the same attribution values as 'attrib', but mapped to the shape 
+    of the original samples. The shape is (n_samples, rows, cols, bands).
+  '''
+
   # Get data sizes
   n_samples, rows, cols, bands = samples.shape
 
@@ -126,7 +173,6 @@ def pwl_eval(samples, edges, weights):
   valid_idxs = np.argwhere(~np.isnan(samples[0])).flatten()
   sample_cells = samples[:, valid_idxs]
   n_valid_cells = len(valid_idxs)
-
 
   # Init ground truth attribution maps
   attrib = np.zeros((n_samples, n_valid_cells))
@@ -142,10 +188,19 @@ def pwl_eval(samples, edges, weights):
     # Make 0-based count for indices instead of 1-based
     x_bin_idxs = x_bin_idxs - 1
 
+    # Build the PWL s.t. it is a continuous function.
+    # We don't simply multiply the value by the weight.
+    # Instead we start from (0, 0) and evaluate the part 
+    # of the value that falls within each bin, until reaching
+    # the value
     for sample_idx in range(n_samples):
       value = x[sample_idx]
       bin_idx = x_bin_idxs[sample_idx]
 
+      # Building positive (go down to zero)
+      # Example: if x = 3 and the breakpoints are (2,  4)
+      #  then y(x = 3) = y(x = 2) + w*(3-2)
+      # So we loop until reaching breakpoint at x = 0
       if x[sample_idx] > 0:
         while edges[cell_idx, bin_idx] >= 0:
           attrib[sample_idx, cell_idx] += weights[cell_idx, bin_idx] \
@@ -153,6 +208,10 @@ def pwl_eval(samples, edges, weights):
           value = edges[cell_idx, bin_idx]
           bin_idx = bin_idx - 1
 
+      # Building negative (go up to 0)
+      # Example: if x = -3 and the breakpoints are (-5, -1)
+      #   then y(x = -3) = (y = -1) + w*(-3 + 1)
+      # So we loop until reaching breakpoint at x = 0
       if x[sample_idx] <= 0:
         while edges[cell_idx, bin_idx] < 0:
           attrib[sample_idx, cell_idx] += weights[cell_idx, bin_idx] \
@@ -184,14 +243,20 @@ def pwl_eval(samples, edges, weights):
   return y, attrib, attrib_maps
 
 
-def plot_attribution_maps(samples, attrib_maps, plot_idxs):
-  n_plots = len(plot_idxs)
-  if n_plots > 0:
-    fig, axs = plt.subplots(2, n_plots, figsize=(n_plots * 5, 6), squeeze=False)
-    for i in range(n_plots):
-      axs[0,i].imshow(samples[plot_idxs[i]])
-      axs[1,i].imshow(attrib_maps[plot_idxs[i]], cmap="bwr")
+def plot_attribution_maps(attrib_maps, plot_idxs):
+  '''
 
+  '''
+  n_samples, rows, cols, bands = attrib_maps.shape
+  n_plots = len(plot_idxs)
+
+  fig, axs = plt.subplots(n_plots, bands, 
+             figsize=(bands * 3, n_plots * 3), squeeze=False)
+  for i, idx in enumerate(plot_idxs):
+    for b in range(bands):
+      axs[i, b].imshow(attrib_maps[idx,:,:,b])
+      axs[i, b].set_xticks([])
+      axs[i, b].set_yticks([])
 
 def plot_cell_functions(samples, attrib, plot_idxs):
   # Get data sizes
@@ -270,7 +335,7 @@ def main():
 
   # Plot attribution maps
   if plot_idxs is not None:
-    plot_attribution_maps(samples, attrib_maps, plot_idxs)
+    plot_attribution_maps(attrib_maps, plot_idxs)
     plt.tight_layout()
     plt.show()  
 

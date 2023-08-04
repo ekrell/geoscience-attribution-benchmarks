@@ -61,7 +61,7 @@ rasters = rasters[indices, :, :, :]
 n_rasters = rasters.shape[0]
 
 # Can only animate one sample at a time
-if n_rasters > 1:
+if n_rasters > 1 and isAnimate:
   print("Can only animate a single raster at a time. When using '--animate', select a single index with '--indices'.\nExiting...")
   exit(-2)
 

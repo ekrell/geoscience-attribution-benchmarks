@@ -57,7 +57,7 @@ Data source: https://psl.noaa.gov/data/gridded/data.cobe2.html
 
     python benchmarks/benchmark_from_covariance.py \
         -c out/sst_cov.npz \        # Path to SST covariance data
-        -n 10 \                     # Number of synthetic samples
+        -n 100000 \                 # Number of synthetic samples
         -o out/sst_samples.npz      # To save the synthetic samples
 
 **Plot generated samples**
@@ -92,7 +92,7 @@ Data source: https://github.com/djgagne/ams-ml-python-course
 
     python benchmarks/benchmark_from_covariance.py \
         -c out/tornado_cov.npz \        # Path to tornado covariance data
-        -n 10 \                         # Number of synthetic samples
+        -n 50000 \                      # Number of synthetic samples
         -o out/tornado_samples.npz      # To save the synthetic samples
 
 **Plot generated samples**
@@ -310,13 +310,38 @@ Here, we need to crop the bands for each time step separately. Otherwise, does n
 
     python benchmarks/pwl_from_samples.py \
         -s out/sst_samples.npz \              # Path to input samples
-        -k 10 \                                # Number of PWL breakpoints 
+        -k 10 \                               # Number of PWL breakpoints 
         -o out/sst_pwl-out.npz \              # To save outputs & attributions
         -f out/sst_pwl-fun.npz \              # To save the PWL functions (weights, edges)
-        -p 0,1,2,3                            # Sample indices to plot with attributions
+        -p 0,1,2,3 \                          # Sample indices to plot with attributions
+        --plot_cell_idxs 1,100,200            # PWL functions to plot (for debugging)
 
-![out/sst_func-pwl.png](out/sst_func-pwl.png)
+**Attribution maps**
 
+![out/sst_func-pwl_attrib.png](out/sst_func-pwl_attrib.png)
+
+**Piece-wise linear functions**
+
+![out/sst_func-pwl_funcs.png](out/sst_func-pwl_funcs.png)
+
+
+### Example: define a piece-wise linear function based on storm-centered images
+
+    python benchmarks/pwl_from_samples.py \
+        -s out/tornado_samples.npz \          # Path to input samples
+        -k 6 \                                # Number of PWL breakpoints
+        -o out/tornado_pwl-out.npz \          # To save outputs & attributions
+        -f out/tornado_pwl-fun.npz \          # To save the PWL functions (weights, edges)
+        -p 0,1,2,3,4,5 \                      # Attribition indices to plot
+        --plot_cell_idxs 0,2,4                # PWL functions to plot (for debugging)
+
+**Attribution maps**
+    
+![out/tornado_func-pwl_attrib.png](out/tornado_func-pwl_attrib.png)
+
+**Piece-wise linear functions** 
+
+![out/tornado_func-pwl_funcs.png](out/tornado_func-pwl_funcs.png)
 
 ## Extra Utilities
  
