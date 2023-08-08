@@ -343,6 +343,26 @@ Here, we need to crop the bands for each time step separately. Otherwise, does n
 
 ![out/tornado_func-pwl_funcs.png](out/tornado_func-pwl_funcs.png)
 
+
+## Train neural networks to approximate the relationship between synthetic samples and generated function
+
+### Example: SST anomaly
+
+Train model
+
+    python models/train_nn.py \                 
+        -s out/sst_samples.npz \                # Path to samples
+        -t out/sst_pwl-out.npz \                # Path to targets
+        -m out/sst_trained-model.hd5 \          # To save trained model
+        -p out/sst_trained-preds.csv \          # To save model outputs
+        --hidden_nodes 512,256,128,64,32,16 \   # Define hidden layer sizes
+        --epochs 50 \                           # Number of epochs
+        --batch_size 32 \                       # Size of batches
+        --learning_rate 0.02 \                  # Learning rate
+        --validation_fraction 0.1               # Fraction to use as validation
+
+Evaluate model
+
 ## Extra Utilities
  
 ### Example: expand raster dimensions
