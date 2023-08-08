@@ -101,14 +101,8 @@ def pwl_build(samples, n_breaks):
     l = interp1d(f1, y1)(breaks[:, cell_idx])
     # Ensure no -INF
     while len(l[~np.isinf(l)]) == 0:
-      #print(x)
-      #print(f1)
-      #print(y1)
-      #print(breaks[:, cell_idx])
-      #print(l)
       breaks[:, cell_idx] = 0.1
       l = interp1d(f1, y1)(breaks[:, cell_idx])
-      #print(l)
     l[np.isinf(l)] = np.sort(l[~np.isinf(l)])[0] - 0.01
     # Ensure unique breakpoints
     while len(np.unique(l)) != len(l):
@@ -125,7 +119,7 @@ def pwl_build(samples, n_breaks):
     edges[cell_idx] = np.sort(edges[cell_idx])
     n_edges = len(edges[cell_idx])
 
-  return edges, weights
+  return edges, weights, n_valid_cells
 
 
 def pwl_eval(samples, edges, weights):
@@ -328,10 +322,16 @@ def main():
   samples = samples_npz[samples_varname]
 
   # Build PWL function
-  edges, weights = pwl_build(samples, n_breaks)
+  edges, weights, n_valid_cells = pwl_build(samples, n_breaks)
   
   # Evaluate PWL function
   y, attrib, attrib_maps = pwl_eval(samples, edges, weights)
+  
+  # Divided by number of cells 
+  # (so that output magnitude is independent of raster size)
+  y = y / n_valid_cells
+  attrib = attrib / n_valid_cells
+  attrib_maps = attrib_maps / n_valid_cells
 
   # Plot attribution maps
   if plot_idxs is not None:
