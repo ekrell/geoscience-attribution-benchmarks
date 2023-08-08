@@ -353,13 +353,18 @@ Train model
     python models/train_nn.py \                 
         -s out/sst_samples.npz \                # Path to samples
         -t out/sst_pwl-out.npz \                # Path to targets
-        -m out/sst_trained-model.hd5 \          # To save trained model
-        -p out/sst_trained-preds.csv \          # To save model outputs
+        -m out/sst_trained-model.pt \           # To save trained model
+        -c out/sst_trained-history.csv \        # To save loss history
+        -p out/sst_trained-history.png \        # To plot loss history
         --hidden_nodes 512,256,128,64,32,16 \   # Define hidden layer sizes
         --epochs 50 \                           # Number of epochs
         --batch_size 32 \                       # Size of batches
         --learning_rate 0.02 \                  # Learning rate
         --validation_fraction 0.1               # Fraction to use as validation
+
+**Convergence curves**
+
+![out/sst_trained-history.png](out/sst_trained-history.png)
 
 Evaluate model
 

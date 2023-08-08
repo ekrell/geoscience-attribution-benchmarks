@@ -16,6 +16,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from optparse import OptionParser
+import matplotlib.pyplot as plt
 
 class Data(Dataset):
   # Convert data to torch tensors
@@ -45,15 +46,13 @@ def get_valid_cells(arr):
   return sample_cells, valid_idxs, n_valid_cells
 
 
-def split_train_valid_test(x, y, valid_frac):
+def split_train_valid(x, y, valid_frac):
   n_valid = int(-valid_frac*len(x))
   x_train = x[:n_valid]
   x_valid = x[n_valid:]
-  x_test = None
   y_train = y[:n_valid]
   y_valid = y[n_valid:]
-  y_test = None
-  return x_train, x_valid, x_test, y_train, y_valid, y_test
+  return x_train, x_valid, y_train, y_valid
 
 
 def main():
@@ -71,8 +70,10 @@ def main():
                     help="Name of variable with targets in targets file.")
   parser.add_option("-m", "--model_file",
                     help="Path to save trained model.")
-  parser.add_option("-p", "--predictions_file",
-                    help="Path to save model predictions.") 
+  parser.add_option("-p", "--plot_loss_file",
+                    help="Path to save plot of train and validation loss curves.") 
+  parser.add_option("-c", "--loss_values_file",
+                    help="Path to save train and validation loss history.")
   parser.add_option("-e", "--epochs",
                     default=50,
                     type="int",
@@ -112,10 +113,12 @@ def main():
     print("Expected output '.pt' file to save trained model ('-m').\nExiting...")
     exit(-1)
   
-  predictions_out_file = options.predictions_file
-  if predictions_out_file is None:
-    print("Expected output '.csv' file to save each sample's model output ('-p').\nExiting...")
+  loss_out_file = options.loss_values_file
+  if loss_out_file is None:
+    print("Expected output '.csv' file to save train and validation loss history ('-c').\nExiting...")
     exit(-1)
+
+  plot_out_file = options.plot_loss_file
 
   hidden_sizes = np.array(options.hidden_nodes.split(",")).astype("int")
   validation_fraction = options.validation_fraction
@@ -152,16 +155,15 @@ def main():
   print("  hidden layer sizes: {}".format(hidden_sizes))  
 
   # Separate into train, validation
-  x_train, x_valid, x_test, y_train, y_valid, y_test = \
-    split_train_valid_test(sample_cells, targets, validation_fraction)
+  x_train, x_valid, y_train, y_valid = split_train_valid(sample_cells, targets, validation_fraction)
 
   # Prepate data for torch
   data_train = Data(x_train, y_train)
   data_valid = Data(x_valid, y_valid)
-  #data_test = Data(x_test, y_test)
   dataloader_valid = DataLoader(dataset=data_valid, batch_size=batch_size, shuffle=True)
   dataloader_train = DataLoader(dataset=data_train, batch_size=batch_size, shuffle=True)
-  # dataloader_test ... 
+  n_train_batches = len(dataloader_train)
+  n_valid_batches = len(dataloader_valid)
 
   # Model hyperparameters 
   optimizer = optim.Adam
@@ -170,7 +172,6 @@ def main():
 
   # Generate a sequence of layers (hidden, activation)
   layers = [(hs, nn.ReLU()) for hs in hidden_sizes]
-  #layers += [(output_size, nn.ReLU())]
 
   class MLP(nn.Module):
     def __init__(self, input_size, layers_data: list):
@@ -196,24 +197,57 @@ def main():
   optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
   print(model)
-
   # Training loop
-  loss_values = np.zeros(epochs)
+  loss_values = np.zeros((epochs, 2))
   for epoch in range(epochs):
-    for x, y in dataloader_train:
-      # Transfer to GPU
-      x, y = x.to(device), y.to(device)
 
+    # Update weights
+    loss_accum = 0
+    for x, y in dataloader_train:
+      x, y = x.to(device), y.to(device)
       optimizer.zero_grad()
       pred = model(x)
       loss = loss_func(pred, y.unsqueeze(-1))
-      loss_values[epoch] = loss.item()
+      loss_accum += loss.item()
       loss.backward()
       optimizer.step()
+    loss_values[epoch, 0] = loss_accum / n_train_batches
 
-  import matplotlib.pyplot as plt
-  plt.plot(loss_values)
-  plt.show()
+    # Validation
+    loss_accum = 0
+    for x, y in dataloader_valid:
+      x, y = x.to(device), y.to(device)
+      pred = model(x)
+      loss = loss_func(pred, y.unsqueeze(-1))
+      loss_accum += loss.item()
+    loss_values[epoch, 1] = loss_accum / n_valid_batches
+
+    print("Epoch {}/{}.  training loss: {},   validation loss: {}".format(
+      epoch + 1, epochs, loss_values[epoch,0], loss_values[epoch,1]))
+
+  # Write model
+  torch.save(model.state_dict(), model_out_file)
+
+  # Write loss history
+  import pandas as pd
+  df_loss = pd.DataFrame(
+    {'train_loss': loss_values[:,0],
+     'valid_loss': loss_values[:,1]})
+  df_loss.to_csv(loss_out_file, index=False)
+  loss_out_file
+
+  # Plot convergence curves
+  plt.plot(loss_values[:,0], label="train loss")
+  plt.plot(loss_values[:,1], label="valid loss")
+  plt.title("Loss history")
+  plt.xlabel("Epoch")
+  plt.ylabel("Loss")
+  plt.legend()
+  if plot_out_file is not None:
+    plt.savefig(plot_out_file)
+  else:
+    plt.show()
+
 
 if __name__ == "__main__":
   main()
