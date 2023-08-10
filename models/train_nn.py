@@ -16,6 +16,7 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 from optparse import OptionParser
 import matplotlib.pyplot as plt
+from nn import MLP
 
 class Data(Dataset):
   # Convert data to torch tensors
@@ -172,30 +173,13 @@ def main():
   # Generate a sequence of layers (hidden, activation)
   layers = [(hs, nn.ReLU()) for hs in hidden_sizes]
 
-  class MLP(nn.Module):
-    def __init__(self, input_size, layers_data: list):
-      super().__init__()
-
-      self.layers = nn.ModuleList()
-      self.input_size = input_size
-      
-      for size, activation in layers_data:
-        self.layers.append(nn.Linear(input_size, size))
-        input_size = size
-        self.layers.append(activation)
-      self.layers.append(nn.Linear(input_size, 1))
-
-    def forward(self, x):
-      for layer in self.layers:
-        x = layer(x)
-      return x
-
   model = MLP(input_size, layers)
+  print(model)
 
   loss_func = torch.nn.MSELoss()
   optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
-  print(model)
+
   # Training loop
   loss_values = np.zeros((epochs, 2))
   for epoch in range(epochs):
@@ -225,7 +209,7 @@ def main():
       epoch + 1, epochs, loss_values[epoch,0], loss_values[epoch,1]))
 
   # Write model
-  torch.save(model.state_dict(), model_out_file)
+  torch.save([model.kwargs, model.state_dict()], model_out_file)
 
   # Write loss history
   import pandas as pd
