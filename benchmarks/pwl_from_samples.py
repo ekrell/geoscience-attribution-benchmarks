@@ -352,7 +352,6 @@ def main():
   # Write the outputs (y values & attributions)
   print("Writing outputs & attributions to: {}.".format(output_file))
   np.savez(output_file, y=y, attributions=attrib, attribution_maps=attrib_maps)
-  
 
 
 if __name__ == "__main__":
