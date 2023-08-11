@@ -16,35 +16,8 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 from optparse import OptionParser
 import matplotlib.pyplot as plt
-from nn import MLP
-
-class Data(Dataset):
-  # Convert data to torch tensors
-  def __init__(self, X, y):
-    self.X = torch.from_numpy(X.astype(np.float32))
-    self.y = torch.from_numpy(y.astype(np.float32))
-    self.len = self.X.shape[0]
-    
-  def __getitem__(self, index):
-    return self.X[index], self.y[index]
-
-  def __len__(self):
-    return self.len
-
-
-def load_npz_var(path, var_name):
-  # Load '.npz' file and extract variable by name
-  data = np.load(path)
-  return data[var_name]
-
-
-def get_valid_cells(arr):
-  # Subset only the non-NaN cells
-  valid_idxs = np.argwhere(~np.isnan(arr[0])).flatten()
-  sample_cells = arr[:, valid_idxs]
-  n_valid_cells = len(valid_idxs)
-  return sample_cells, valid_idxs, n_valid_cells
-
+from nn import MLP, Data
+from utils import get_valid_cells
 
 def split_train_valid(x, y, valid_frac):
   n_valid = int(-valid_frac*len(x))
@@ -131,8 +104,8 @@ def main():
   device = torch.device("cuda:0" if use_cuda else "cpu")
 
   # Load data
-  samples = load_npz_var(samples_npz_file, samples_npz_varname)
-  targets = load_npz_var(targets_npz_file, targets_npz_varname)
+  samples = np.load(samples_npz_file)[samples_npz_varname]
+  targets = np.load(targets_npz_file)[targets_npz_varname]
   n_samples, rows, cols, bands = samples.shape
   if targets.shape[0] != n_samples:
     print("The number of samples does not match the number of targets.\nExiting...")

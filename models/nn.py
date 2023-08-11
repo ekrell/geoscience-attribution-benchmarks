@@ -2,7 +2,24 @@
 A simple Pytorch neural network.
 '''
 
+import numpy as np
+import torch
 import torch.nn as nn
+from torch.utils.data import Dataset
+
+class Data(Dataset):
+  # Convert data to torch tensors
+  def __init__(self, X, y):
+    self.X = torch.from_numpy(X.astype(np.float32))
+    self.y = torch.from_numpy(y.astype(np.float32))
+    self.len = self.X.shape[0]
+
+  def __getitem__(self, index):
+    return self.X[index], self.y[index]
+
+  def __len__(self):
+    return self.len
+
 
 class MLP(nn.Module):
   def __init__(self, input_size, layers_data: list):
