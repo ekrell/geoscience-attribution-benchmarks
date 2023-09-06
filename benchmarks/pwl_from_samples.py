@@ -245,7 +245,7 @@ def plot_attribution_maps(attrib_maps, plot_idxs):
   n_plots = len(plot_idxs)
 
   fig, axs = plt.subplots(n_plots, bands, 
-             figsize=(bands * 3, n_plots * 3), squeeze=False)
+             figsize=(bands * 3, n_plots * 2), squeeze=False)
   for i, idx in enumerate(plot_idxs):
     for b in range(bands):
       axs[i, b].imshow(attrib_maps[idx,:,:,b])
@@ -288,8 +288,12 @@ def main():
                     help="Path tp '.npz' to write function output (and attributions).")
   parser.add_option("-p", "--plot_idxs",
                     help="Comma-delimited list of sample indices to plot.")
+  parser.add_option(      "--plot_idxs_file",
+                    help="Path to save plotted samples attributions.")
   parser.add_option(     "--plot_cell_idxs",
                     help="Comma-delimited list of cell's PWL functions to plot.")
+  parser.add_option(    "--plot_cell_idxs_file",
+                    help="Path to save plotted PWL functions.")
   (options, args) = parser.parse_args()
 
   samples_file = options.samples_file
@@ -317,6 +321,9 @@ def main():
   if plot_cell_idxs is not None:
     plot_cell_idxs = np.array(plot_cell_idxs.split(",")).astype("int")
 
+  plot_idxs_file = options.plot_idxs_file
+  plot_cell_idxs_file = options.plot_cell_idxs_file
+
   # Load samples
   samples_npz = np.load(samples_file)
   samples = samples_npz[samples_varname]
@@ -337,13 +344,19 @@ def main():
   if plot_idxs is not None:
     plot_attribution_maps(attrib_maps, plot_idxs)
     plt.tight_layout()
-    plt.show()  
+    if plot_idxs_file is None:
+      plt.show()
+    else:
+      plt.savefig(plot_idxs_file)  
 
   # Plot PWL functions
   if plot_cell_idxs is not None:
     plot_cell_functions(samples, attrib, plot_cell_idxs)
     plt.tight_layout()
-    plt.show()
+    if plot_cell_idxs_file is None:
+      plt.show()
+    else:
+      plt.savefig(plot_cell_idxs_file)
 
   # Write the function (weights & edges)
   print("Writing function (weights and edges to: {}.".format(function_file))

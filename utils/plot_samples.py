@@ -84,7 +84,7 @@ if isAnimate:
 
 # Option 2: static
 else:
-  fig, axs = plt.subplots(n_rasters, bands, figsize=(bands * 3, n_rasters * 3), squeeze=False)
+  fig, axs = plt.subplots(n_rasters, bands, figsize=(bands * 3, n_rasters * 2), squeeze=False)
   for i, raster in enumerate(rasters):
     for b in range(bands):
       axs[i, b].imshow(raster[:,:,b])

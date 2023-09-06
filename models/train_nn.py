@@ -17,6 +17,7 @@ from torch.utils.data import Dataset, DataLoader
 from optparse import OptionParser
 import matplotlib.pyplot as plt
 from nn import MLP, Data
+from sklearn.metrics import r2_score
 from utils import get_valid_cells
 
 def split_train_valid(x, y, valid_frac):
@@ -67,7 +68,6 @@ def main():
                     default="512,256,128,64,32,16",
                     help="Comma-delimited list of hidden layer node sizes, from first to last hidden node (e.g. 512,128,32).")
   (options, args) = parser.parse_args()
-
 
   samples_npz_file = options.samples_file
   samples_npz_varname = options.samples_varname
@@ -152,7 +152,6 @@ def main():
   loss_func = torch.nn.MSELoss()
   optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
-
   # Training loop
   loss_values = np.zeros((epochs, 2))
   for epoch in range(epochs):
@@ -180,6 +179,17 @@ def main():
 
     print("Epoch {}/{}.  training loss: {},   validation loss: {}".format(
       epoch + 1, epochs, loss_values[epoch,0], loss_values[epoch,1]))
+
+  # Calculate r2
+  preds_train = model(data_train.X)
+  r2_train = r2_score(data_train.y.numpy(), preds_train.detach().numpy())
+  preds_valid = model(data_valid.X)
+  r2_valid = r2_score(data_valid.y.numpy(), preds_valid.detach().numpy())
+  
+  print("")
+  print("Metrics:")
+  print("r2:  training   = {}".format(r2_train))
+  print("     validation = {}".format(r2_valid))
 
   # Write model
   torch.save([model.kwargs, model.state_dict()], model_out_file)
