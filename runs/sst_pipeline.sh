@@ -28,10 +28,10 @@ xai_methods=(
   "lrp" 
 )
 
-skip_get_sst=false
-skip_benchmark_from_covarinace=false
-skip_pwl_from_samples=false
-skip_train_nn=false
+skip_get_sst=true
+skip_benchmark_from_covarinace=true
+skip_pwl_from_samples=true
+skip_train_nn=true
 
 # Calculate covariance matrix from samples
 if [ "$skip_get_sst" = false ]; then
@@ -84,8 +84,9 @@ if [ "$skip_train_nn" = false ]; then
     --validation_fraction 0.1
 fi
 
-# Run XAI methods
 for method in ${xai_methods[@]}; do
+  
+  # Run XAI method
   python models/run_xai.py \
     -x ${method} \
     -s ${out_dir}/sst_samples.npz \
@@ -93,4 +94,12 @@ for method in ${xai_methods[@]}; do
     -i ${samples_to_plot} \
     -p ${out_dir_xai}/ \
     -a ${out_dir_xai}/xai_${method}.npz
+
+  # Compare XAI results to ground truth
+  python utils/compare_attributions.py \
+    --a_file ${out_dir}/sst_pwl-out.npz \
+    --a_idxs ${samples_to_plot} \
+    --b_file ${out_dir_xai}xai_${method}.npz \
+    -o ${out_dir_xai}/xai_${method}_corr.csv
+
 done
