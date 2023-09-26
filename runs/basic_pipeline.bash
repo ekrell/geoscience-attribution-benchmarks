@@ -1,25 +1,36 @@
 #!/usr/bin/bash 
 
-# SST Anomaly XAI Benchmark
+# Basic XAI Benchmark
 # -------------------------
 # This script creates an XAI benchmark by generated samples based
-#   on the covariance matrix calculated from real SST data.
-# This benchmark is an implementation of :
-#   Mamalakis, A., Ebert-Uphoff, I., & Barnes, E. A. (2022). 
-#   Neural network attribution methods for problems in geoscience: 
-#   A novel synthetic benchmark dataset. Environmental Data Science, 1, e8.
+#   on the covariance matrix. The exact problem (e.g. SST Anomaly)
+#   is defined based on a '.dat' file with options.
+#
+# How to:  `./basic_pipeline.sh <options.dat>`
+#
+# Example options file: `runs/sst_anom.dat`
 
-# Definitions
+# Option validation
+if [ $# -eq 0 ]
+  then
+    echo "Must provide input options file:"
+    echo "  $0 <options.dat>"
+    exit 1
+fi
 
-sst_data="data/sst.mon.mean.nc"
-out_dir="out/sstanom/"
-out_dir_xai="${out_dir}/xai/"
-
-n_samples="100000"
-n_pwl_breaks="5"
-
-samples_to_plot="0,10,100,200,300"
-pwl_functions_to_plot="0,10,100,200"
+# Read options file
+sst_data=$(grep "data=" $1 | awk -F"=" '{print $2}')
+out_dir=$(grep "out_dir=" $1 | awk -F"=" '{print $2}')
+out_dir_xai=$(grep "out_dir_xai=" $1 | awk -F"=" '{print $2}')
+n_samples=$(grep "n_samples=" $1 | awk -F"=" '{print $2}')
+n_pwl_breaks=$(grep "n_pwl_breaks=" $1 | awk -F"=" '{print $2}')
+samples_to_plot=$(grep "samples_to_plot=" $1 | awk -F"=" '{print $2}')
+pwl_functions_to_plot=$(grep "pwl_functions_to_plot=" $1 | awk -F"=" '{print $2}')
+nn_hidden_nodes=$(grep "nn_hidden_nodes=" $1 | awk -F"=" '{print $2}')
+nn_epochs=$(grep "nn_epochs=" $1 | awk -F"=" '{print $2}')
+nn_batch_size=$(grep "nn_batch_size=" $1 | awk -F"=" '{print $2}')
+nn_learning_rate=$(grep "nn_learning_rate=" $1 | awk -F"=" '{print $2}')
+nn_validation_fraction=$(grep "nn_validation_fraction=" $1 | awk -F"=" '{print $2}')
 
 xai_methods=(
   "saliency"
@@ -28,10 +39,10 @@ xai_methods=(
   "lrp" 
 )
 
-skip_get_sst=true
-skip_benchmark_from_covarinace=true
-skip_pwl_from_samples=true
-skip_train_nn=true
+skip_get_sst=false
+skip_benchmark_from_covarinace=false
+skip_pwl_from_samples=false
+skip_train_nn=false
 
 # Calculate covariance matrix from samples
 if [ "$skip_get_sst" = false ]; then
@@ -77,11 +88,11 @@ if [ "$skip_train_nn" = false ]; then
     -m ${out_dir}/sst_trained-model.pt \
     -c ${out_dir}/sst_trained-history.csv \
     -p ${out_dir}/sst_trained-history.png \
-    --hidden_nodes 512,256,128,64,32,16 \
-    --epochs 50 \
-    --batch_size 32 \
-    --learning_rate 0.02 \
-    --validation_fraction 0.1
+    --hidden_nodes ${nn_hidden_nodes} \
+    --epochs ${nn_epochs} \
+    --batch_size ${nn_batch_size} \
+    --learning_rate ${nn_learning_rate} \
+    --validation_fraction ${nn_validation_fraction}
 fi
 
 for method in ${xai_methods[@]}; do
