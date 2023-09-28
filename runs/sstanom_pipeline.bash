@@ -1,10 +1,10 @@
 #!/usr/bin/bash 
 
-# Basic XAI Benchmark
+# Basic XAI SST Anomaly Benchmark
 # -------------------------
-# This script creates an XAI benchmark by generated samples based
-#   on the covariance matrix. The exact problem (e.g. SST Anomaly)
-#   is defined based on a '.dat' file with options.
+# This script creates an XAI benchmark by generated 
+# samples based on an SST covariance matrix. 
+# Options are defined from a '.dat' file with options.
 #
 # How to:  `./basic_pipeline.sh <options.dat>`
 #
@@ -40,7 +40,7 @@ xai_methods=(
 )
 
 skip_get_sst=false
-skip_benchmark_from_covarinace=false
+skip_benchmark_from_covariance=false
 skip_pwl_from_samples=false
 skip_train_nn=false
 
