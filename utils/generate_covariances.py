@@ -13,7 +13,7 @@ cols = 36
 # Rows, cols of square covariance matrix
 n = rows * cols
 
-weights = np.linspace(0.1, 1, 10)
+weights = np.linspace(0.0, 1.0, 11)
 
 ones = np.ones(n)
 identity = np.identity(n)
