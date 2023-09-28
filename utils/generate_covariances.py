@@ -22,8 +22,4 @@ mask = np.ones((rows, cols))
 
 for i, w in enumerate(weights):
   cov = w * ones + (1.0 - w) * identity
-
-  print(w, (1-w), i)
-
   np.savez(out_file_fmt.format(i), covariance=cov, mask=mask)
-
