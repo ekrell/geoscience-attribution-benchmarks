@@ -1,6 +1,7 @@
 # This program modifies the strength of a covariance matrix
 
 import numpy as np
+from sklearn.preprocessing import normalize
 from optparse import OptionParser
 
 def stat_cov(cov):
@@ -79,7 +80,7 @@ def main():
   cov[cov < 0] = cov_neg
   cov_abs = np.abs(cov)
 
- # Stat covariance matrix
+   # Stat covariance matrix
   cov_stats = {
     "cov" : stat_cov(cov),
     "abs" : stat_cov(cov_abs),
@@ -97,11 +98,22 @@ def main():
   # Reshape to map
   cov = np.reshape(cov, cov_shape)
 
+  # Normalize
+  cov = normalize(cov, norm="l1")
+
+
   if out_file is None:
     print("Did not provide output file ('-o'). Will not save covariance matrix.")
   else:
-    np.savez(out_file, **{var_name: cov})
 
+    # We copy the '.npz' to carry on the additional variables into new output
+    npz_copy = {}
+    for f in cov_npz.files:
+      npz_copy[f] = cov_npz[f]
+    # Replace the covariance matrix with the modification
+    npz_copy[var_name] = cov
+
+    np.savez(out_file, **npz_copy)
 
 if __name__ == "__main__":
   main()
