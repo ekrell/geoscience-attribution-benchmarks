@@ -67,6 +67,9 @@ def main():
   parser.add_option("-n", "--hidden_nodes",
                     default="512,256,128,64,32,16",
                     help="Comma-delimited list of hidden layer node sizes, from first to last hidden node (e.g. 512,128,32).")
+  parser.add_option("-q", "--quiet",
+                    action="store_true",
+                    help="Suppress printing each training epoch")
   (options, args) = parser.parse_args()
 
   samples_npz_file = options.samples_file
@@ -98,6 +101,8 @@ def main():
   batch_size = options.batch_size
   epochs = options.epochs
   learning_rate = options.learning_rate
+
+  quiet = options.quiet
 
   # Setup device
   use_cuda = torch.cuda.is_available()
@@ -147,7 +152,8 @@ def main():
   layers = [(hs, nn.ReLU()) for hs in hidden_sizes]
 
   model = MLP(input_size, layers)
-  print(model)
+  if not quiet:
+    print(model)
 
   loss_func = torch.nn.MSELoss()
   optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
@@ -177,8 +183,9 @@ def main():
       loss_accum += loss.item()
     loss_values[epoch, 1] = loss_accum / n_valid_batches
 
-    print("Epoch {}/{}.  training loss: {},   validation loss: {}".format(
-      epoch + 1, epochs, loss_values[epoch,0], loss_values[epoch,1]))
+    if not quiet: 
+      print("Epoch {}/{}.  training loss: {},   validation loss: {}".format(
+        epoch + 1, epochs, loss_values[epoch,0], loss_values[epoch,1]))
 
   # Calculate r2
   preds_train = model(data_train.X)
