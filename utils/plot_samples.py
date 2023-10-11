@@ -24,6 +24,13 @@ parser.add_option("-a", "--animate",
                   help="Show the bands using an animated '.gif'.")
 parser.add_option("-o", "--output_file",
                   help="Path to save plotted rasters.")
+parser.add_option("-c", "--cmap",
+                  default="bwr",
+                  help="Name of matplotlib colormap.")
+parser.add_option(      "--vmin",
+                  help="Minimum value for colormap.")
+parser.add_option(      "--vmax",
+                  help="Maximum value for colormap.")
 (options, args) = parser.parse_args()
 
 npz_file = options.rasters_file
@@ -56,9 +63,18 @@ if len(rasters.shape) <= 3:
   rasters = np.reshape(rasters, (n_rasters, rows, cols, 1))
 bands = rasters.shape[3]
 
+cmap = options.cmap
+vmin = options.vmin
+vmax = options.vmax
+
 # Subset to requested indices
 rasters = rasters[indices, :, :, :]
 n_rasters = rasters.shape[0]
+
+if vmin is None:
+  vmin = np.min(rasters)
+if vmax is None:
+  vmax = np.max(rasters)
 
 # Can only animate one sample at a time
 if n_rasters > 1 and isAnimate:
@@ -87,7 +103,7 @@ else:
   fig, axs = plt.subplots(n_rasters, bands, figsize=(bands * 3, n_rasters * 2), squeeze=False)
   for i, raster in enumerate(rasters):
     for b in range(bands):
-      axs[i, b].imshow(raster[:,:,b])
+      axs[i, b].imshow(raster[:,:,b], cmap=cmap, vmin=vmin, vmax=vmax)
       axs[i, b].set_xticks([])
       axs[i, b].set_yticks([])
 
