@@ -23,7 +23,7 @@ from statsmodels.distributions.empirical_distribution import ECDF
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 
-def pwl_build(samples, n_breaks):
+def pwl_build(samples, n_breaks, cov=None, mask=None):
   '''
   Generates a PWL function for each grid cell based on:
     (1) Covariance between cells (maintain spatial relations)
@@ -35,6 +35,10 @@ def pwl_build(samples, n_breaks):
     Set of samples of raster data with shape (n_samples, rows, cols, bands).
   n_breaks : int
     Number of breakpoints in the piece-wise linear function.
+  cov: a 2D Numpy float array
+    Covariance matrix used to specify a spatial relationship between local PWL functions.
+    If 'None', will use a covariance matrix computed from the samples
+    The number of rows of the square covariance matrix must equal the number of valid cells.
 
   Returns
   -------
@@ -49,21 +53,32 @@ def pwl_build(samples, n_breaks):
 
   '''
   
+  if mask is not None:
+    samples[:, mask < 0.5] = np.nan
+
   # Get data sizes
   n_samples, rows, cols, bands = samples.shape
 
   # Reshape each (rows, cols, bands)-shaped sample to vector
   samples = np.reshape(samples, (n_samples, rows * cols * bands))
-
+    
   # Subset only the valid (non-NaN) cells
   valid_idxs = np.argwhere(~np.isnan(samples[0])).flatten()
   sample_cells = samples[:, valid_idxs]
   n_valid_cells = len(valid_idxs)
 
-  # Calculate correlation coefficient. This is used to generate random weights
-  # so that there is spatial structure related to the original data between the
-  # elements even though the function itself treats each element independently.
-  cov = np.cov(sample_cells, rowvar=False)
+  if cov is None:
+    # Calculate correlation coefficient. This is used to generate random weights
+    # so that there is spatial structure related to the original data between the
+    # elements even though the function itself treats each element independently.
+    cov = np.cov(sample_cells, rowvar=False)
+
+  if cov is not None and mask is not None:
+    cov = cov[np.ix_(valid_idxs, valid_idxs)]
+
+  if cov.shape[0] != n_valid_cells:
+    print("Covariance matrix has shape {}, which does not match number of valid cells ({}).\nExiting...".format(cov.shape, n_valid_cells))
+    exit(-2)
 
   # Init PWL edges
   edges = np.ones((n_valid_cells, n_breaks + 2))
@@ -292,8 +307,12 @@ def main():
                     help="Path to save plotted samples attributions.")
   parser.add_option(     "--plot_cell_idxs",
                     help="Comma-delimited list of cell's PWL functions to plot.")
-  parser.add_option(    "--plot_cell_idxs_file",
+  parser.add_option(     "--plot_cell_idxs_file",
                     help="Path to save plotted PWL functions.")
+  parser.add_option(     "--pwl_cov",
+                    help="Path to covariance for specifying a relationship between each grid cell's PWL functions. By default, will use the covariance calculated from the samples.")
+  parser.add_option(     "--pwl_mask",
+                    help="Path to mask for removing or damping the use of grid cells in the addition of PWL functions.")
   (options, args) = parser.parse_args()
 
   samples_file = options.samples_file
@@ -324,12 +343,23 @@ def main():
   plot_idxs_file = options.plot_idxs_file
   plot_cell_idxs_file = options.plot_cell_idxs_file
 
+  pwl_cov_file = options.pwl_cov
+  if pwl_cov_file is not None:
+    pwl_cov_npz = np.load(pwl_cov_file)
+    pwl_cov = pwl_cov_npz["covariance"]    # <--- warn: hard-coded varname
+
+  pwl_mask_file = options.pwl_mask
+  pwl_mask = None
+  if pwl_mask_file is not None:
+    pwl_mask_npz = np.load(pwl_mask_file)
+    pwl_mask = pwl_mask_npz["mask"]        # <--- warn: hard-coded varname
+
   # Load samples
   samples_npz = np.load(samples_file)
   samples = samples_npz[samples_varname]
 
   # Build PWL function
-  edges, weights, n_valid_cells = pwl_build(samples, n_breaks)
+  edges, weights, n_valid_cells = pwl_build(samples, n_breaks, cov=pwl_cov, mask=pwl_mask)
   
   # Evaluate PWL function
   y, attrib, attrib_maps = pwl_eval(samples, edges, weights)
