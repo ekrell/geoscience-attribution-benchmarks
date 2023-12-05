@@ -8,33 +8,27 @@ This is based off of the XAI Benchmarks proposed by Mamalakis et al. (2022).
 
     Mamalakis, A., Ebert-Uphoff, I., & Barnes, E. A. (2022). Neural network attribution methods for problems in geoscience: A novel synthetic benchmark dataset. Environmental Data Science, 1, e8.
 
-## Overview 
+## Overview
 
-A complete experiment is designed with 3 components: 
+This directory contains a main pipeline script called `benchmark_pipeline.bash` that reads in a configuration file to create a synthetic benchmark based on a defined covariance matrix. This script can be used as a module for application-specific scripts that, for example, generate the covariance matrix. 
 
-1. The **body** pipeline, `body.bash`, that is used for all pipelines.
-2. The **head** script that add code for generating the application-specific covariance matrix.
-3. The **config** files that specify the parameters of a pipeline run. 
+## Examples
 
-All outputs are placed in a directory specified in the configuration file. 
+**Example 1: Basic Pipeline**
 
-## Example: SST Anomaly Pipeline
+In this example, we use an existing covariance matrix to create the XAI benchmark.
 
-This pipeline is an implementation of the SST anomaly benchmark designed by Mamalakis et al. (2022). 
+    mkdir out/example/                              # Create output directory
+    cp data/example_cov.npz out/example/cov.npz     # Relies on name 'cov.npz'
+    bash pipelines/benchmark_pipeline.bash  \
+        pipelines/benchmark_pipeline_config.json    # Configuration file
 
-Run the pipeline:
+**Example 2: SST Anomaly Pipeline**
 
-    python benchmark_pipeline.py \
-        --head sstanom_head.bash \     # Head pipeline for SST anomaly
-        --config sstanom_config.json   # Config file
+In this example, we use a script that also creates the covariance matrix based on SST data.
+After creating the covariance matrix, the basic pipeline from above is called. 
 
-## How to add an application
-
-To tailor the pipeline for a specific application, you have to define a **head** script and **config** file. The **head** is a bash script that handles how the covariance matrix is created. If you already have a covariance matrix, you can simply not provide a the `--head` option to `benchmark_pipeline.py`. 
-
-To develop these, check `sstanom_head.bash` and `ssanom_config.json` for examples.
-
-
-
-
+    bash pipelines/sstanom_pipeline.bash \
+        data/sst.mon.mean.nc \                     # One extra application-specific parameter
+        pipelines/benchmark_pipeline_config.json   # Configuration file
 
