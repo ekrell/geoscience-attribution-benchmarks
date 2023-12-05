@@ -13,8 +13,7 @@ parser.add_option("-c", "--config",
 
 head_file = options.apphead
 if head_file is None:
-  print("Required option '-a' missing. Exiting...")
-  exit(-1)
+  print("No application head file (-a). Assuming a convariance matrix exists in input directory.")
 
 config_file = options.config
 if config_file is None:
@@ -28,11 +27,12 @@ Path(out_dir).mkdir(parents=True, exist_ok=True)
 Path(out_dir + "/xai/").mkdir(parents=True, exist_ok=True)
 
 body_file = "pipelines/body.bash"
+cov_file = out_dir + "cov.npz"
 
 # Execute application head module
-data_file = config["data"]
-cov_file = out_dir + "cov.npz"
-subprocess.run(["bash", head_file, data_file, cov_file], shell=False)
+if head_file is not None:
+  data_file = config["data"]
+  subprocess.run(["bash", head_file, data_file, cov_file], shell=False)
 
 # Execute body
 subprocess.run(["bash", body_file, 
