@@ -10,6 +10,7 @@ Each a Numpy '.npz' file. The variables are accessed by name, so it can be the s
 '''
 
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -48,6 +49,8 @@ def main():
                     help="Path to save plot of train and validation loss curves.") 
   parser.add_option("-c", "--loss_values_file",
                     help="Path to save train and validation loss history.")
+  parser.add_option("-o", "--metrics_file",
+                    help="Path to save CSV of metrics.")
   parser.add_option("-e", "--epochs",
                     default=50,
                     type="int",
@@ -94,6 +97,7 @@ def main():
     print("Expected output '.csv' file to save train and validation loss history ('-c').\nExiting...")
     exit(-1)
 
+  metrics_out_file = options.metrics_file
   plot_out_file = options.plot_loss_file
 
   hidden_sizes = np.array(options.hidden_nodes.split(",")).astype("int")
@@ -202,12 +206,21 @@ def main():
   torch.save([model.kwargs, model.state_dict()], model_out_file)
 
   # Write loss history
-  import pandas as pd
   df_loss = pd.DataFrame(
     {'train_loss': loss_values[:,0],
      'valid_loss': loss_values[:,1]})
   df_loss.to_csv(loss_out_file, index=False)
   loss_out_file
+
+  # Write metrics
+  if metrics_out_file is not None:
+    types = ["training", "validation"]
+    r2s = [r2_train, r2_valid]
+    dfMetrics = pd.DataFrame({
+      "dataset" : types,
+      "r-square" : r2s,
+    })
+    dfMetrics.to_csv(metrics_out_file, index=False)
 
   # Plot convergence curves
   plt.plot(loss_values[:,0], label="train loss")

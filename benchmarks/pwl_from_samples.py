@@ -344,6 +344,7 @@ def main():
   plot_cell_idxs_file = options.plot_cell_idxs_file
 
   pwl_cov_file = options.pwl_cov
+  pwl_cov = None
   if pwl_cov_file is not None:
     pwl_cov_npz = np.load(pwl_cov_file)
     pwl_cov = pwl_cov_npz["covariance"]    # <--- warn: hard-coded varname
