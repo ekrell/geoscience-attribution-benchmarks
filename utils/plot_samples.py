@@ -72,9 +72,9 @@ rasters = rasters[indices, :, :, :]
 n_rasters = rasters.shape[0]
 
 if vmin is None:
-  vmin = np.min(rasters)
+  vmin = np.nanmin(rasters)
 if vmax is None:
-  vmax = np.max(rasters)
+  vmax = np.nanmax(rasters)
 
 # Can only animate one sample at a time
 if n_rasters > 1 and isAnimate:
@@ -108,7 +108,6 @@ else:
       axs[i, b].set_yticks([])
 
   plt.tight_layout()
-
 
 if out_file is None:
   plt.show()

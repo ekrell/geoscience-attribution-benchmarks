@@ -48,6 +48,9 @@ def main():
   a_attr = load_attributions(a_file, a_varname)
   b_attr = load_attributions(b_file, b_varname)
 
+  print(a_attr.shape)
+  print(b_attr.shape)
+
   if options.a_idxs is not None:
     a_idxs = np.array(options.a_idxs.split(",")).astype("int")
   else:

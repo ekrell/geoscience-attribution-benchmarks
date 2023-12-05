@@ -4,6 +4,7 @@
 import numpy as np
 from scipy import signal
 import matplotlib.pyplot as plt
+from optparse import OptionParser
 
 def apply_gaussian(raster, row, col, kernel_size, std=1):
   k1d = signal.gaussian(kernel_size, std).reshape(kernel_size, 1)
@@ -12,13 +13,29 @@ def apply_gaussian(raster, row, col, kernel_size, std=1):
          col - (kernel_size//2) : col + (kernel_size//2) + 1] = kernel
   return raster
 
+parser = OptionParser()
+parser.add_option("-o", "--out_dir",
+                  help="Where to store covariance matrices")
+parser.add_option("-r", "--rows",
+                  default=20,
+                  type="int",
+                  help="Number of raster rows")
+parser.add_option("-c", "--cols",
+                  default=23,
+                  type="int",
+                  help="Number of raster columns")
+parser.add_option("-s", "--show",
+                  action="store_true",
+                  help="Show masks.")
+(options, args) = parser.parse_args()
 
+show = options.show
 # File options
-out_dir = "out/cov_exp/"
+out_dir = options.out_dir
 out_file_fmt = out_dir + "/mask_{}.npz"
 # Raster options
-rows = 20
-cols = 23
+rows = options.rows
+cols = options.cols
 # Mask options
 mask_params = [
   (5, 5, 9, 3), 
@@ -27,9 +44,6 @@ mask_params = [
   (13, 17, 9, 3), 
   (10, 11, 9, 3), 
 ]
-
-show = True
-
 # Initialize raster
 mask_base = np.zeros((rows, cols))
 
