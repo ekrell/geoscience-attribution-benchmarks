@@ -44,9 +44,34 @@ This is a very simple benchmark to demonstrate how the strength of correlation b
 
 There is a single pipeline script that builds all the benchmarks, runs XAI methods, and plots results.
 You can modify the experiment using variables at the top of the pipeline script. 
+The plotting scripts also have hard-coded options at the top. 
 
 **Run the pipeline**
 
     bash benchmarks/uniform_covariance/create_unicov_benchmark.bash
 
-### Inspect results
+**Plot comparisons of XAI to known attributions**
+
+    bash benchmarks/uniform_covariance/unicov_plot.bash
+
+Example: `xai_compare_4.pdf`
+
+![A comparison of samples to ground truth](img/unicov_cmp4.png)
+
+
+**Plot summary over entire set of benchmarks**
+
+    python benchmarks/uniform_covariance/unicov_summary_plot.py
+
+Example: `corr_compare_summary.pdf`
+
+![Plot of the correlation distribution between XAI and ground truth](img/unicov_corr.png)
+
+
+Example: `performance_summary.pdf`
+
+![Plot of the performance for each trained model](img/unicov_perf.png)
+
+
+
+

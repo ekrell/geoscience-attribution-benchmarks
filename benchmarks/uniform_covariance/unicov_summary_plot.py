@@ -3,7 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-input_dir = "out/cov_exp/no_mask/"
+bmark_dir = "benchmarks/uniform_covariance/"
+input_dir = bmark_dir + "/out/"
 xai_label = "input_x_gradient"
 cov_labels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 n_covs=len(cov_labels)
@@ -42,3 +43,5 @@ sns.set_palette("muted")
 sns.violinplot(data=[d for d in mean_corrs], linewidth = 3)
 plt.savefig(out_corr_file)
 
+print("Saving performance plot to: {}".format(out_performance_file))
+print("Saving correlation plot to: {}".format(out_corr_file))
