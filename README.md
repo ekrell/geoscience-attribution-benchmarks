@@ -1,86 +1,44 @@
 # Geoscience Attribution Benchmarks
-Attribution Benchmarks for Geoscience Modeling
+
+Attribution Benchmarks for Geoscience AI Models
 
 ## Overview
 
-Coming soon
+- EXplainable AI (XAI) is increasingly used to investigate what complex ML models learned.
+- However, there are many techniques with their strengths & weaknesses.
+- It is hard to evaluate XAI methods since we don't have a ground truth explanation.
+- So, Mamalakis et al. proposed synthetic benchmarks for evaluating XAI methods
+  - Using specially-designed functions where the attribution of each pixel toward the output can be derived. 
 
 ## Related publications
 
 [Neural network attribution methods for problems in geoscience: A novel synthetic benchmark dataset](https://www.cambridge.org/core/journals/environmental-data-science/article/neural-network-attribution-methods-for-problems-in-geoscience-a-novel-synthetic-benchmark-dataset/DDA562FC7B9A2B30710582861920860E)
 
-[Investigating the Fidelity of Explainable Artificial Intelligence Methods for Applications of Convolutional Neural Networks in Geoscience](https://journals.ametsoc.org/view/journals/aies/1/4/AIES-D-22-0012.1.xml)
+## Organization
 
-## Quick start
+This repository contains tools for developing synthetic benchmarks for XAI evaluation. 
+The tools in the `src` directory are building blocks for developing benchmarks. For example, `src/synthetic/benchmark_from_covariance.py` uses a covariance to generate a set of synthetic data samples. The scripts in the `pipelines` directory use those tools to build benchmarks given input data (e.g. a covariance matrix). 
 
-### Example: Create a synthetic dataset based on SST Anomaly data
+In addition to the tools, there are specific benchmarks in the `benchmarks` directory. Each subfolder should be a specific benchmark application containing (1) input data, (2) application-specific code, and (3) the output benchmark files and visualizations. 
 
-Data source: https://psl.noaa.gov/data/gridded/data.cobe2.html
+- `src`:
+  - `src/synthetic`: Main programs for building benchmarks:
+    1. Generating synthetic samples (e.g. from a covariance matrix).
+    2. Generating functions with known attribution (e.g. piece-wise linear).
+  - `src/models`: Programs for defining, training, and explaining NN models.
+  - `src/utils`: Simple convenience utilities (e.g. cropping rasters).
+  - `src/plot`: Plotting scripts.
+- `pipelines`: Scripts that combine tools from `src` to build generic benchmarks.
+- `benchmarks`: Data, code, and outputs for a specific benchmark.
 
-**Download SST data**
+## Installation
 
-    mkdir data 
-    cd data 
-    wget https://downloads.psl.noaa.gov//Datasets/COBE2/sst.mon.mean.nc
-    cd ..
+- Steps for installing all the Python libraries will be given soon.
+- All code (e.g. Python and Bash scripts) assume that you are running them from the root of this repo.
 
-**Calculate covariance matrix from samples**
+## Quickstart
 
-    python utils/get_sst.py \
-        -n data/sst.mon.mean.nc \   # Path to SST data
-        -c out/sst_cov.npz \        # To save covariance
-        -p out/sst.png \            # To save plot of selected sample
-        -i 0                        # Index to select sample to plot
-
-**Generate synthetic samples using covariance matrix**
-
-    python benchmarks/benchmark_from_covariance.py \
-        -c out/sst_cov.npz \        # Path to SST covariance data
-        -n 100000 \                 # Number of synthetic samples
-        -o out/sst_samples.npz      # To save the synthetic samples
-
-**Plot generated samples**
-
-    python utils/plot_samples.py \
-        -r out/sst_samples.npz \      # Synthetic SST anomaly samples
-        -i 0,2,4,6,8 \                # Indices to plot 
-        -o out/sst_samples_plot.png   # Where to save plot
-
-
-![out/sst_samples_plot.png](out/sst_samples_plot.png)
-
-
-### Example: Create a synthetic dataset based on storm-centered tornado images
-
-Data source: https://github.com/djgagne/ams-ml-python-course
-
-**Download tornado data**
-
-    cd data
-    wget https://storage.googleapis.com/track_data_ncar_ams_3km_nc_small/track_data_ncar_ams_3km_nc_small.tar.gz
-    tar -xvzf track_data_ncar_ams_3km_nc_small.tar.gz
-    cd ..
-
-**Calculate covariance matrix from samples**
-
-    python utils/get_tornado.py \
-        -n data/track_data_ncar_ams_3km_nc_small/NCARSTORM_20170323-0000_d01_model_patches.nc,data/track_data_ncar_ams_3km_nc_small/NCARSTORM_20170329-0000_d01_model_patches.nc   # Comma-delimited storm patch files
-        -o out/tornado_cov.npz         # To save covariance
-
-**Generate synthetic samples using covariance matrix**o
-
-    python benchmarks/benchmark_from_covariance.py \
-        -c out/tornado_cov.npz \        # Path to tornado covariance data
-        -n 50000 \                      # Number of synthetic samples
-        -o out/tornado_samples.npz      # To save the synthetic samples
-
-**Plot generated samples**
-
-    python utils/plot_samples.py \
-        -r out/tornado_samples.npz \      # Synthetic SST anomaly samples
-        -i 5,6,7,8,9 \                    # Indices to plot 
-        -o out/tornado_samples_plot.png   # Where to save plot
-
-
-![out/tornado_samples_plot.png](out/tornado_samples_plot.png)
-    
+- To create a new benchmark, please make a new directory under `benchmarks/`.
+- For an example, see the SST Anomaly benchmark located in `benchmarks/sstanom`. 
+  - This benchmark is an implementation of that described by [Mamalakis et al. (2022)](https://www.cambridge.org/core/journals/environmental-data-science/article/neural-network-attribution-methods-for-problems-in-geoscience-a-novel-synthetic-benchmark-dataset/DDA562FC7B9A2B30710582861920860E)
+  - To run it: `bash benchmarks/sstanom/create_sstanom_benchmark.sh`

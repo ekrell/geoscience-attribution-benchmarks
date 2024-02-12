@@ -1,0 +1,13 @@
+Still need to implement. 
+
+Will need to download data:
+
+  wget https://storage.googleapis.com/track_data_ncar_ams_3km_nc_small/track_data_ncar_ams_3km_nc_small.tar.gz
+  tar -xvzf track_data_ncar_ams_3km_nc_small.tar.gz
+
+
+Then calc cov matrix
+
+  python utils/get_tornado.py \
+    -n data/track_data_ncar_ams_3km_nc_small/NCARSTORM_20170323-0000_d01_model_patches.nc,data/track_data_ncar_ams_3km_nc_small/NCARSTORM_20170329-0000_d01_model_patches.nc # Comma-delimited storm patch files
+    -o out/tornado_cov.npz 
