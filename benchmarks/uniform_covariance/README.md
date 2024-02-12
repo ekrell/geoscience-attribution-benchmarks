@@ -42,4 +42,11 @@ This is a very simple benchmark to demonstrate how the strength of correlation b
 
 ### Build benchmarks
 
+There is a single pipeline script that builds all the benchmarks, runs XAI methods, and plots results.
+You can modify the experiment using variables at the top of the pipeline script. 
+
+**Run the pipeline**
+
+    bash benchmarks/uniform_covariance/create_unicov_benchmark.bash
+
 ### Inspect results
