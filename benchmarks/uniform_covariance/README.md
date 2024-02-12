@@ -26,4 +26,9 @@ This is a very simple benchmark to demonstrate how the strength of correlation b
 
 ## Results
 
+![Benchmark results](img/unicov_results.png)
+
+## How to Run
+
+
 Comparison Plot IMAGE
