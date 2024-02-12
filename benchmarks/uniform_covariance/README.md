@@ -24,11 +24,22 @@ This is a very simple benchmark to demonstrate how the strength of correlation b
 
 ![Benchmark pipeline](img/unicov_benchmark_design.png)
 
+**Note on covariance matrix**
+
+- For each benchmark, two covariance matrices are needed
+  1. Used to generate the samples 
+  2. Used to induce spatial relationships between grid cells when defining known function F
+- Here, a _uniform covariance matrix_ is used to generate samples (e.g. where cov = 0.5)
+- And a _real geospatial covariance matrix_ is used for the known function F
+  - Otherwise, each experiment has **two changes** instead of isolating to just the influence on sample correlation
+  - The real covariance matrix comes from **SST anomaly** data (see the `sstanom` benchmark)
+
 ## Results
 
 ![Benchmark results](img/unicov_results.png)
 
 ## How to Run
 
+### Build benchmarks
 
-Comparison Plot IMAGE
+### Inspect results
