@@ -156,6 +156,7 @@ def main():
   layers = [(hs, nn.ReLU()) for hs in hidden_sizes]
 
   model = MLP(input_size, layers)
+  model = model.to(device)
   if not quiet:
     print(model)
 
@@ -192,10 +193,10 @@ def main():
         epoch + 1, epochs, loss_values[epoch,0], loss_values[epoch,1]))
 
   # Calculate r2
-  preds_train = model(data_train.X)
-  r2_train = r2_score(data_train.y.numpy(), preds_train.detach().numpy())
-  preds_valid = model(data_valid.X)
-  r2_valid = r2_score(data_valid.y.numpy(), preds_valid.detach().numpy())
+  preds_train = model(data_train.X.to(device))
+  r2_train = r2_score(data_train.y.numpy(), preds_train.detach().cpu().numpy())
+  preds_valid = model(data_valid.X.to(device))
+  r2_valid = r2_score(data_valid.y.numpy(), preds_valid.detach().cpu().numpy())
   
   print("")
   print("Metrics:")

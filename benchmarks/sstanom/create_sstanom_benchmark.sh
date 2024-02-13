@@ -18,6 +18,6 @@ fi
 python ${sstanom_dir}/get_sst.py \
   -n ${sst_data_file} \
   -c ${covariance_file} 
-exit 0
+
 # The rest is handled by a generic pipeline
 bash pipelines/basic_covariance_benchmark_pipeline.bash ${config_file}
