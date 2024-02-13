@@ -11,7 +11,7 @@ mkdir -p ${sstanom_dir}/out/
 if test -f "${covariance_file}"; then
   echo "Found sst data file '${covariance_file}'. Skipping download..."
 else
-  wget https://downloads.psl.noaa.gov//Datasets/COBE2/sst.mon.mean.nc -o ${sstanom_dir}/data/
+  wget https://downloads.psl.noaa.gov//Datasets/COBE2/sst.mon.mean.nc -o ${sst_data_file}
 fi
 
 # Calculate covariance from real SST data
