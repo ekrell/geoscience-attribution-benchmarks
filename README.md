@@ -33,8 +33,21 @@ In addition to the tools, there are specific benchmarks in the `benchmarks` dire
 
 ## Installation
 
-- Steps for installing all the Python libraries will be given soon.
-- All code (e.g. Python and Bash scripts) assume that you are running them from the root of this repo.
+**Note:** All code (e.g. Python and Bash scripts) should be run from repo's root.
+
+**Install basic libraries**
+
+	pip install numpy pandas scipy matplotlib netCDF4 │cmocean statsmodels captum scikit-learn pyarrow
+
+**Install pytorch**
+
+Option 1: install with CUDA for GPU support. May need to change based on [your GPU](https://pytorch.org/get-started/locally/).
+
+	pip install torch --index-url https://download.pytorch.org/whl/cu118
+
+Option 2: install without CUDA, for CPU-only.
+
+	pip install torch
 
 ## Quickstart
 
