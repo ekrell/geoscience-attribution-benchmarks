@@ -18,6 +18,10 @@ nn_validation_fraction=$(grep -e "\"nn_validation_fraction\":" ${config_file} | 
 xai_methods_=$(grep -e "\"xai_methods\":" ${config_file} | grep -o -e "\"[^\"]*\"," | grep -o -e "[^\",]*")
 IFS=';' read -r -a xai_methods <<< "${xai_methods_}"
 
+samples_to_plot="${samples_to_plot//;/,}"
+pwl_functions_to_plot="${pwl_functions_to_plot//;/,}"
+nn_hidden_nodes="${nn_hidden_nodes//;/,}"
+
 skip_benchmark_from_covariance=false
 skip_pwl_from_samples=false
 skip_train_nn=false
@@ -28,7 +32,7 @@ if [ "$skip_benchmark_from_covariance" = false ]; then
     -c ${cov_file} \
     -n ${n_samples} \
     -o ${out_dir}/samples.npz 
-  
+
   # Plot generated samples
   python src/plot/plot_samples.py \
     -r ${out_dir}/samples.npz \
