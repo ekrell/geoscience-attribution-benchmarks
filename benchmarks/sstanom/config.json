@@ -6,7 +6,7 @@
     "samples_to_plot": "0;10;100;200;300",
     "pwl_functions_to_plot": "0;10;100;200",
     "nn_hidden_nodes": "512;256;128;64;32;16",
-    "nn_epochs": "50",
+    "nn_epochs": "100",
     "nn_batch_size": "32",
     "nn_learning_rate": "0.02",
     "nn_validation_fraction": "0.1",
