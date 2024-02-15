@@ -1,6 +1,6 @@
 # Plots set of covariance experiments
 
-bmark_dir="benchmarks/uniform_covariance/"
+bmark_dir="benchmarks/unicov/"
 input_dir="${bmark_dir}/out/"
 output_dir="${input_dir}/xai/"
 xai_label="input_x_gradient"

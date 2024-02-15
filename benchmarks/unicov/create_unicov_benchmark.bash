@@ -10,7 +10,7 @@
 # when the strength of the correlations increase. 
 
 # Options
-bmark_dir=benchmarks/uniform_covariance/
+bmark_dir=benchmarks/unicov/
 out_dir=${bmark_dir}out/
 out_dir_xai=${out_dir}/xai/
 pwl_cov_file=${bmark_dir}/sstanom_cov.npz

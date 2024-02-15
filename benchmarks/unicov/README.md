@@ -48,11 +48,11 @@ The plotting scripts also have hard-coded options at the top.
 
 **Run the pipeline**
 
-    bash benchmarks/uniform_covariance/create_unicov_benchmark.bash
+    bash benchmarks/unicov/create_unicov_benchmark.bash
 
 **Plot comparisons of XAI to known attributions**
 
-    bash benchmarks/uniform_covariance/unicov_plot.bash
+    bash benchmarks/unicov/unicov_plot.bash
 
 Example: `xai_compare_4.pdf`
 
@@ -61,7 +61,7 @@ Example: `xai_compare_4.pdf`
 
 **Plot summary over entire set of benchmarks**
 
-    python benchmarks/uniform_covariance/unicov_summary_plot.py
+    python benchmarks/unicov/unicov_summary_plot.py
 
 Example: `corr_compare_summary.pdf`
 

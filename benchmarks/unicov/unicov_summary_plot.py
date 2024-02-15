@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-bmark_dir = "benchmarks/uniform_covariance/"
+bmark_dir = "benchmarks/unicov/"
 input_dir = bmark_dir + "/out/"
 xai_label = "input_x_gradient"
 cov_labels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
