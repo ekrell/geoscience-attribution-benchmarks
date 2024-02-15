@@ -22,3 +22,16 @@ _Image from [Mamalakis et al. (2022)](https://www.cambridge.org/core/journals/en
 The pipeline options (which XAI methods, NN hyperparameters, etc) can be modified in `config.json`.
 
     bash create_sstanom_benchmark.sh
+
+There is also a script to plot several attribution maps to compare  
+
+    dir=benchmarks/sstanom/out/
+
+    python src/plot/plot_attributions.py \
+        --attr_files  $dir/pwl-out.npz,$dir/xai/xai_input_x_gradient.npz,$dir/xai/xai_integrated_gradients.npz,$dir/xai/xai_saliency.npz \
+        --sample_idxs 0,10,100,200,300.0,1,2,3,4.0,1,2,3,4.0,1,2,3,4 \
+        --names ground_truth,input_x_grad,integrated_grad,saliency
+
+![Example XAI comparison plot](img/xai_compare.png)
+
+
