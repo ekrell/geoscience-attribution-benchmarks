@@ -52,7 +52,18 @@ The plotting scripts also have hard-coded options at the top.
 
 **Plot comparisons of XAI to known attributions**
 
-    bash benchmarks/unicov/unicov_plot.bash
+    # Use the output files to get list of covariance matrix indices
+    cov_labels=$(ls benchmarks/unicov/out/nn_loss*.csv | grep -o nn_loss_[0-9]* | grep -o [0-9]* | uniq | sort -n)         
+    echo ${cov_labels}
+
+    # Loop over those indices to plot the XAI results for a given method
+    for cidx in ${cov_labels[@]}; do
+        python benchmarks/unicov/unicov_plot.py \
+            --input_dir         benchmarks/unicov/out/   \   # Directory with unicov outputs
+            --covariance_label  ${cidx}                  \   # Index of covariance matrix
+            --xai_label         input_x_gradient         \   # Which performance metric to compare
+            --output_file        benchmarks/unicov/out/xai/xai_compare_${cidx}.pdf
+    done
 
 Example: `xai_compare_4.pdf`
 
@@ -62,7 +73,7 @@ Example: `xai_compare_4.pdf`
 **Plot summary over entire set of benchmarks**
 
     python benchmarks/unicov/unicov_summary_plot.py \
-        --input_dir   benchmarks/unicov/out/  \     # Directory with pipeline outputs
+        --input_dir   benchmarks/unicov/out/  \     # Directory with unicov outputs
         --xai_label   input_x_gradient        \     # Which XAI method to compare
         --metric      input_x_gradient        \     # Which performance metric to compare
         --output_corr_file   benchmarks/unicov/out/xai/corr_compare_summary.pdf  \
