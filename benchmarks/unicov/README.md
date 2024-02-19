@@ -61,7 +61,12 @@ Example: `xai_compare_4.pdf`
 
 **Plot summary over entire set of benchmarks**
 
-    python benchmarks/unicov/unicov_summary_plot.py
+    python benchmarks/unicov/unicov_summary_plot.py \
+        --input_dir   benchmarks/unicov/out/  \     # Directory with pipeline outputs
+        --xai_label   input_x_gradient        \     # Which XAI method to compare
+        --metric      input_x_gradient        \     # Which performance metric to compare
+        --output_corr_file   benchmarks/unicov/out/xai/corr_compare_summary.pdf  \
+        --output_perf_file   benchmarks/unicov/out/xai/performance_summary.pdf
 
 Example: `corr_compare_summary.pdf`
 
