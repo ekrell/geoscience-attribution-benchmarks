@@ -10,35 +10,51 @@
 # when the strength of the correlations increase. 
 
 # Options
-bmark_dir=benchmarks/unicov/
-out_dir=${bmark_dir}out/
+# Config file for benchmark options
+config_bmark=${1:-benchmarks/unicov/config_bmark.json}
+# Config file for neural net hyperparams
+config_network=${1:-benchmarks/unicov/config_nn.json}
+
+echo ""
+echo "UNICOV Benchmark Pipeline"
+echo "-------------------------"
+echo " Benchmarks config file: ${config_bmark}"
+echo " Neural net config file: ${config_network}"
+echo ""
+
+# Load benchmark options from config file
+out_dir=$(grep "output_directory" ${config_bmark} | grep -o ":.*$" | grep -o '".*"' | sed 's/"//g')
 out_dir_xai=${out_dir}/xai/
-pwl_cov_file=${bmark_dir}/sstanom_cov.npz
-n_samples=100000
-n_pwl_breaks=5
-samples_to_plot=0,2500,5000,10000,12500,15000,17500,20000,22500,25000,27500,30000,32500,35000,37500,40000,42500,45000,47500,50000,52500,55000,57500,60000,62500,65000,67500,70000,72500,75000,77500,80000,82500,85000,87500,90000,92500,95000,97500,99999
-pwl_functions_to_plot=0,10,100,200
-nn_hidden_nodes=512,256,128,64,32,16
-nn_epochs=20
-nn_batch_size=32
-nn_learning_rate=0.02
-nn_validation_fraction=0.1
+pwl_cov_file=$(grep "pwl_cov_file" ${config_bmark} | grep -o ":.*$" | grep -o '".*"' | sed 's/"//g')
+n_samples=$(grep "n_samples" ${config_bmark} | grep -o ":.*$" | grep -o '".*"' | sed 's/"//g')
+n_pwl_breaks=$(grep "n_pwl_breaks" ${config_bmark} | grep -o ":.*$" | grep -o '".*"' | sed 's/"//g')
+n_reps=$(grep "n_reps" ${config_bmark} | grep -o ":.*$" | grep -o '".*"' | sed 's/"//g')
+xai_methods=$(grep "xai_methods" ${config_bmark} | grep -o ":.*$" | grep -o '".*"' | sed 's/"//g')
+samples_to_plot=$(grep "samples_to_plot" ${config_bmark} | grep -o ":.*$" | grep -o '".*"' | sed 's/"//g')
+pwl_functions_to_plot=$(grep "pwl_functions_to_plot" ${config_bmark} | grep -o ":.*$" | grep -o '".*"' | sed 's/"//g')
 
-covariance_idxs=(0 1 2 3 4 5 6 7 8 9 10)
+IFS=',' my_array=($xai_methods)
+for element in "${my_array[@]}"; do
+  echo "$element"
+done
 
-n_reps=3
-
-xai_methods=(
-  "input_x_gradient"
-) 
+# Load NN hyperparameters from config file
+nn_hidden_nodes=$(grep "hidden_nodes" ${config_network} | grep -o ":.*$" | grep -o '".*"' | sed 's/"//g')
+nn_epochs=$(grep "epochs" ${config_network} | grep -o ":.*$" | grep -o '".*"' | sed 's/"//g')
+nn_batch_size=$(grep "batch_size" ${config_network} | grep -o ":.*$" | grep -o '".*"' | sed 's/"//g')
+nn_learning_rate=$(grep "learning_rate" ${config_network} | grep -o ":.*$" | grep -o '".*"' | sed 's/"//g')
+nn_validation_fraction=$(grep "validation_fraction" ${config_network} | grep -o ":.*$" | grep -o '".*"' | sed 's/"//g')
 
 # Setup directories
 mkdir -p ${out_dir_xai}
 
 # Generate covariance matrices
-python ${bmark_dir}/generate_covariances.py \
+python benchmarks/unicov/generate_covariances.py \
   -o ${out_dir} \
   -r 20 -c 23 
+
+# Get the indices of the generated matrices based on the files created
+readarray -t covariance_idxs < <( ls ${out_dir}/cov*.npz | grep -o [0-9]* | uniq | sort -n )
 
 for cidx in "${covariance_idxs[@]}"
 do

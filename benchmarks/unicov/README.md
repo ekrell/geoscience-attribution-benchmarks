@@ -42,13 +42,11 @@ This is a very simple benchmark to demonstrate how the strength of correlation b
 
 ### Build benchmarks
 
-There is a single pipeline script that builds all the benchmarks, runs XAI methods, and plots results.
-You can modify the experiment using variables at the top of the pipeline script. 
-The plotting scripts also have hard-coded options at the top. 
-
 **Run the pipeline**
 
-    bash benchmarks/unicov/create_unicov_benchmark.bash
+    bash benchmarks/unicov/create_unicov_benchmark.bash \
+        benchmarks/unicov/config_bmark.json             \   # Config file for general benchmark options
+        benchmarks/unicov/config_nn.json                    # Config file for the nueral net hyperparameters
 
 **Plot comparisons of XAI to known attributions**
 
@@ -87,7 +85,4 @@ Example: `corr_compare_summary.pdf`
 Example: `performance_summary.pdf`
 
 ![Plot of the performance for each trained model](img/unicov_perf.png)
-
-
-
 
