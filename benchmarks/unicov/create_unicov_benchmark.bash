@@ -97,7 +97,7 @@ do
       --targets_file ${pwl_attribution_file} \
       --model_file ${model_file} \
       --loss_values_file ${loss_file} \
-      --hidden_nodes ${nn_hidden_nodes} \
+      --hidden_nodes "${nn_hidden_nodes}" \
       --epochs ${nn_epochs} \
       --batch_size ${nn_batch_size} \
       --learning_rate ${nn_learning_rate} \

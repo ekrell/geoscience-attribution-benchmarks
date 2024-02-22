@@ -6,5 +6,5 @@
   "samples_to_plot": "0,2500,1000,60000,95000", 
   "pwl_functions_to_plot": "0,10,100,200",
   "n_reps": "3",
-  "xai_methods": "input_x_gradient,saliency",
+  "xai_methods": "input_x_gradient",
 }
