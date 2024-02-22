@@ -1,6 +1,7 @@
 # Exploring
 
 def corr2cov(covariance):
+  # Source: https://gist.github.com/wiso/ce2a9919ded228838703c1c7c7dad13b
   v = np.sqrt(np.diag(covariance))
   outer_v = np.outer(v, v)
   correlation = covariance / outer_v
@@ -31,6 +32,8 @@ weights = np.array(options.weights.split(",")).astype("float")
 out_dir = options.output_dir
 
 outplot_file = out_dir + "/compare_corrs.pdf"
+out_file_fmt = out_dir + "/cov_{}.npz"
+out_plot_fmt = out_dir + "/cov_{}.pdf"
 
 # Read base covaraince data
 cov_data = np.load(cov_file)
@@ -66,6 +69,13 @@ for i, wi in enumerate(weights):
 
   # Store the correlation values
   cor_vals[:, i] = cor[np.triu_indices_from(cor)].flatten()
+
+  # Plot matrix
+  plt.imshow(cov, cmap="gray_r", vmax=1, vmin=-1)
+  plt.savefig(out_plot_fmt.format(i))
+  np.savez(out_file_fmt.format(i), covariance=cov, mask=mask)
+  
+  exit(0)
 
 # Compare correlations
 fig, ax = plt.subplots()
