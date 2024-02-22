@@ -13,7 +13,7 @@
 # Config file for benchmark options
 config_bmark=${1:-benchmarks/unicov/config_bmark.json}
 # Config file for neural net hyperparams
-config_network=${1:-benchmarks/unicov/config_nn.json}
+config_network=${2:-benchmarks/unicov/config_nn.json}
 
 echo ""
 echo "UNICOV Benchmark Pipeline"
