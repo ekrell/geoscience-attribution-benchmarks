@@ -34,9 +34,6 @@ samples_to_plot=$(grep "samples_to_plot" ${config_bmark} | grep -o ":.*$" | grep
 pwl_functions_to_plot=$(grep "pwl_functions_to_plot" ${config_bmark} | grep -o ":.*$" | grep -o '".*"' | sed 's/"//g')
 
 IFS=',' my_array=($xai_methods)
-for element in "${my_array[@]}"; do
-  echo "$element"
-done
 
 # Load NN hyperparameters from config file
 nn_hidden_nodes=$(grep "hidden_nodes" ${config_network} | grep -o ":.*$" | grep -o '".*"' | sed 's/"//g')
