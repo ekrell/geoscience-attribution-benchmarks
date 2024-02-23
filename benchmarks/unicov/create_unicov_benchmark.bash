@@ -62,22 +62,22 @@ do
     # Generate synthetic samples from covariance
     samples_file=${out_dir}/samples_${cidx}.npz
     python src/synthetic/benchmark_from_covariance.py \
-      --covariance_file ${cov_file} \
-      --num_samples $n_samples \
-      --output_file ${samples_file}
+      --covariance_file "${cov_file}" \
+      --num_samples "$n_samples" \
+      --output_file "${samples_file}"
     
     # Define a synthetic function with ground-truth attribution
     pwl_attribution_file=${out_dir}/pwl-out_${cidx}.npz
     pwl_function_file=${out_dir}/pwl_fun_${cidx}.npz
     pwl_plot_file=${out_dir}/pwl_plot_${cidx}.png
     python src/synthetic/pwl_from_samples.py \
-      --samples_file ${samples_file} \
-      --breakpoints ${n_pwl_breaks} \
-      --output_file ${pwl_attribution_file} \
-      --function_file ${pwl_function_file} \
-      --plot_idxs ${samples_to_plot} \
-      --plot_idxs_file ${pwl_plot_file} \
-      --pwl_cov ${pwl_cov_file}
+      --samples_file "${samples_file}" \
+      --breakpoints "${n_pwl_breaks}" \
+      --output_file "${pwl_attribution_file}" \
+      --function_file "${pwl_function_file}" \
+      --plot_idxs "${samples_to_plot}" \
+      --plot_idxs_file "${pwl_plot_file}" \
+      --pwl_cov "${pwl_cov_file}"
 
   # Train the neural network multiple times
   for (( i=0; i<n_reps; i++ ))
@@ -93,17 +93,17 @@ do
     metrics_file=${out_dir}/nn_metrics_${cidx}__${i}.csv
     python src/models/train_nn.py \
       --quiet \
-      --samples_file ${samples_file} \
-      --targets_file ${pwl_attribution_file} \
-      --model_file ${model_file} \
-      --loss_values_file ${loss_file} \
+      --samples_file "${samples_file}" \
+      --targets_file "${pwl_attribution_file}" \
+      --model_file "${model_file}" \
+      --loss_values_file "${loss_file}" \
       --hidden_nodes "${nn_hidden_nodes}" \
-      --epochs ${nn_epochs} \
-      --batch_size ${nn_batch_size} \
-      --learning_rate ${nn_learning_rate} \
-      --validation_fraction ${nn_validation_fraction} \
-      --plot_loss_file ${loss_plot_file} \
-      --metrics_file ${metrics_file}
+      --epochs "${nn_epochs}" \
+      --batch_size "${nn_batch_size}" \
+      --learning_rate "${nn_learning_rate}" \
+      --validation_fraction "${nn_validation_fraction}" \
+      --plot_loss_file "${loss_plot_file}" \
+      --metrics_file "${metrics_file}"
 
       for method in ${xai_methods[@]}; do
 
@@ -112,20 +112,20 @@ do
         out_dir_xai_plots=${out_dir_xai}/${method}__cov-${cidx}__run-${i}/
         mkdir -p ${out_dir_xai_plots}
         python src/models/run_xai.py \
-          --xai_method ${method} \
-          --samples_file ${samples_file} \
-          --model_file ${model_file} \
-          --indices ${samples_to_plot} \
-          --plot_directory ${out_dir_xai_plots} \
-          --attributions_file ${xai_file}
+          --xai_method "${method}" \
+          --samples_file "${samples_file}" \
+          --model_file "${model_file}" \
+          --indices "${samples_to_plot}" \
+          --plot_directory "${out_dir_xai_plots}" \
+          --attributions_file "${xai_file}"
 
         # Compare XAI results to ground truth
         xai_compare_file=${out_dir_xai}/pwl-${method}_${cidx}__${i}.csv
         python src/utils/compare_attributions.py \
-          --a_file ${pwl_attribution_file} \
-          --a_idxs ${samples_to_plot} \
-          --b_file ${xai_file} \
-          --out_file ${xai_compare_file}
+          --a_file "${pwl_attribution_file}" \
+          --a_idxs "${samples_to_plot}" \
+          --b_file "${xai_file}" \
+          --out_file "${xai_compare_file}"
 
     done
   done
@@ -138,9 +138,9 @@ do
         xai_b_file=${out_dir_xai}/${method}_${cidx}__${j}.npz
         xai_compare_file=${out_dir_xai}/${method}_${cidx}__${i}v${j}.csv
         python src/utils/compare_attributions.py \
-          --a_file ${xai_a_file} \
-          --b_file ${xai_b_file} \
-          --out_file ${xai_compare_file}
+          --a_file "${xai_a_file}" \
+          --b_file "${xai_b_file}" \
+          --out_file "${xai_compare_file}"
       done
     done
   done
