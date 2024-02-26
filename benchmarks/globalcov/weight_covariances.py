@@ -19,7 +19,7 @@ parser.add_option("-c", "--covariance_file",
                   default="benchmarks/globalcov/sstanom_cov.npz")
 parser.add_option("-w", "--weights",
                   help="Comma-delimited list of weights to add to create new covariances.",
-                  default="0.1,0.3,0.5,0.7,0.9")
+                  default="0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9")
 parser.add_option("-o", "--output_dir",
                   help="Path to store outputs.",
                   default="benchmarks/globalcov/out")
@@ -62,9 +62,10 @@ for i, wi in enumerate(weights):
   n = cor.shape[0]
   ones = np.ones(n)
   ident = np.identity(n)
-  c = wi * ones + (1.0 - wi) * ident
+  #c = wi * ones + (1.0 - wi) * ident
+  c = 1 * ones + (1.0 - 1)* ident
 
-  cor = wi * cor + (1.0 - wi) * c
+  cor = (1.0 - wi) * cor + (wi) * c
   # Separately deal with pos and neg correlations
   #cor = cor + cor * wi * (cor >= 0)
   #cor = cor - cor * -wi * (cor < 0)
