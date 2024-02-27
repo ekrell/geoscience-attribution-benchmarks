@@ -76,9 +76,14 @@ for run_idx in range(n_runs):
     df_metrics = pd.read_csv(metrics_file)
     m__[cov_idx] = df_metrics[metric].values[1]
     dfMetrics["run_{}".format(run_idx)] = m__
-dfMetrics["mean"] = [np.mean(dfMetrics.iloc[cov_idx]) for cov_idx in range(n_covs)]
+all_metrics = dfMetrics.values
 fig, ax = plt.subplots(figsize=(14,4))
-ax.scatter(x=cov_labels, y=dfMetrics["mean"])
+ax.set_ylim(top=1.0)
+
+# Plot metrics for each run
+for run_idx in range(n_runs):
+  ax.scatter(x=cov_labels, y=all_metrics[:,run_idx], marker="o", facecolors='none', edgecolors='r', s=400)
+
 plt.savefig(out_performance_file)
 
 # Plot the correlation variance
