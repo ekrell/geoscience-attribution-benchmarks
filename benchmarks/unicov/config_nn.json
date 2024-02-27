@@ -1,7 +1,0 @@
-{
-  "hidden_nodes": "512,256,128,64,32,16",
-  "epochs": "20",
-  "batch_size": "32",
-  "learning_rate": "0.02",
-  "validation_fraction": "0.1",
-}
