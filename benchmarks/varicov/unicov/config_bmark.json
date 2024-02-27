@@ -1,0 +1,8 @@
+{
+  "output_directory": "benchmarks/varicov/unicov/out",
+  "pwl_cov_file": "benchmarks/varicov/unicov/sstanom_cov.npz",
+  "n_samples": "10000",
+  "n_pwl_breaks": "5",
+  "n_reps": "3",
+  "xai_methods": "input_x_gradient",
+}
