@@ -17,12 +17,12 @@ The _global_ in `globalcov` refers to the origin of the based covariance matrix:
 
     # Build the set of benchmarks
     bash benchmarks/varicov/build_benchmarks.bash \
-        benchmarks/varicov/unicov/config_bmark.json \  # Benchmark configs
-        benchmarks/varicov/unicov/config_nn.json       # NN hyperparameters
+        benchmarks/varicov/globalcov/config_bmark.json \  # Benchmark configs
+        benchmarks/varicov/globalcov/config_nn.json       # NN hyperparameters
 
     # Evaluate the XAI variance
     bash benchmarks/varicov/run_xai.bash \   
-        benchmarks/varicov/unicov/out/ \     # Output directory
+        benchmarks/varicov/globalcov/out/ \     # Output directory
         input_x_gradient \                   # Which XAI method to apply
         1,2,3,4,5,6,7,8,9,10                 # Which samples to include in plots
 
