@@ -1,10 +1,7 @@
 {
-  "output_directory": "benchmarks/globalcov/out",
-  "pwl_cov_file": "benchmarks/globalcov/sstanom_cov.npz",
-  "n_samples": "10000",
+  "output_directory": "benchmarks/varicov/globalcov/out",
+  "pwl_cov_file": "benchmarks/varicov/globalcov/sstanom_cov.npz",
+  "n_samples": "100000",
   "n_pwl_breaks": "5",
-  "samples_to_plot": "0,99,999,9999", 
-  "pwl_functions_to_plot": "0,10,100,200",
   "n_reps": "5",
-  "xai_methods": "input_x_gradient",
 }
