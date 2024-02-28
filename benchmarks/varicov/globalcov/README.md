@@ -30,7 +30,7 @@ The _global_ in `globalcov` refers to the origin of the based covariance matrix:
 
 Example: `compare_corrs.pdf`
 
-![]()
+![Comparison of correlation values as we strengthen the matrix](img/compare_corrs.png)
 
 Example: `corr_compare_summary.pdf`
 
