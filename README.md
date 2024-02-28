@@ -37,7 +37,7 @@ In addition to the tools, there are specific benchmarks in the `benchmarks` dire
 
 **Install basic libraries**
 
-	pip install numpy pandas scipy matplotlib netCDF4 cmocean statsmodels captum scikit-learn pyarrow
+	pip install numpy pandas scipy matplotlib netCDF4 cmocean statsmodels captum scikit-learn pyarrow seaborn
 
 **Install pytorch**
 
