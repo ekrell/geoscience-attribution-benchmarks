@@ -1,6 +1,7 @@
 # Data and output files
 benchmarks/*/data
 benchmarks/*/out
+benchmarks/*/*/out
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
