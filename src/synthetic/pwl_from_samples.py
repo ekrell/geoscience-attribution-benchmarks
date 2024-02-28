@@ -332,6 +332,7 @@ def main():
   n_breaks = options.breakpoints
   plot_idxs = options.plot_idxs
   n_plots = 0
+
   if plot_idxs is not None:
     plot_idxs = np.array(plot_idxs.split(",")).astype("int")
 

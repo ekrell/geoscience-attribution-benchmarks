@@ -56,9 +56,9 @@ These are actually a set of benchmarks based on changing the covariance matrix u
 
     # Evaluate the XAI variance
     bash benchmarks/varicov/run_xai.bash \
-      benchmarks/varicov/unicov/out/ \       # Output directory
-      input_x_gradient \                     # Which XAI method to apply
-      1,2,3,4,5,6,7,8,9,10                   # Which samples to include in plots
+        benchmarks/varicov/unicov/out/ \       # Output directory
+        input_x_gradient \                     # Which XAI method to apply
+        1,2,3,4,5,6,7,8,9,10                   # Which samples to include in plots
 
 ## Example outputs
 
