@@ -28,6 +28,10 @@ The _global_ in `globalcov` refers to the origin of the based covariance matrix:
 
 ## Example outputs
 
+Example: `compare_corrs.pdf`
+
+![]()
+
 Example: `corr_compare_summary.pdf`
 
 ![Plot of the correlation distribution between XAI and ground truth](img/unicov_corr.png)
