@@ -100,6 +100,7 @@ for cov_idx in range(n_covs):
     corrs[cov_idx, run_idx, :] = corrs_
 mean_corrs = np.mean(corrs, axis=1)
 sns.violinplot(data=[d for d in mean_corrs], linewidth = 1, ax=axs[0])
+axs[0].set_title("Correlation between XAI & known attributions")
 
 # Plot another one (corr between XAI... multiple training reps)
 xai_corr_file_fmt = input_dir + "/xai/" + xai_label + "_{}__0v{}.csv"
@@ -113,6 +114,9 @@ for cov_idx in range(n_covs):
     corrs[cov_idx, run_idx-1, :] = corrs_
 mean_corrs = np.mean(corrs, axis=1)
 sns.violinplot(data=[d for d in mean_corrs], linewidth = 1, ax=axs[1])
+axs[1].set_title("Correlation between XAI from multiple NN training repetitions")
+
+plt.tight_layout()
 plt.savefig(out_corr_file)
 
 print("Saving performance plot to: {}".format(out_performance_file))
