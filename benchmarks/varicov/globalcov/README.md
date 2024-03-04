@@ -10,6 +10,7 @@ The _global_ in `globalcov` refers to the origin of the based covariance matrix:
 ## Build & evaluate 
 
     # Generate covariance matrices
+    mkdir benchmarks/varicov/globalcov/out/
     python  benchmarks/varicov/globalcov/strengthen_covariance.py \
         --covariance_file benchmarks/varicov/globalcov/sstanom_cov.npz \
         --output_dir benchmarks/varicov/globalcov/out \

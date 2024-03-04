@@ -87,7 +87,10 @@ for run_idx in range(n_runs):
 plt.savefig(out_performance_file)
 plt.clf()
 
-# Plot the correlation variance
+f, axs = plt.subplots(2)
+sns.set_palette("muted")
+
+# Plot the correlation variance (corr between XAI and known attributions)
 corrs = np.zeros((n_covs, n_runs, n_samples))
 for cov_idx in range(n_covs):
   for run_idx in range(n_runs):
@@ -96,8 +99,20 @@ for cov_idx in range(n_covs):
     corrs_ = dfC["pearson"].values
     corrs[cov_idx, run_idx, :] = corrs_
 mean_corrs = np.mean(corrs, axis=1)
-sns.set_palette("muted")
-sns.violinplot(data=[d for d in mean_corrs], linewidth = 3)
+sns.violinplot(data=[d for d in mean_corrs], linewidth = 1, ax=axs[0])
+
+# Plot another one (corr between XAI... multiple training reps)
+xai_corr_file_fmt = input_dir + "/xai/" + xai_label + "_{}__0v{}.csv"
+corrs = np.zeros((n_covs, n_runs-1, n_samples))
+for cov_idx in range(n_covs):
+  for run_idx in range(1, n_runs):
+    corr_file = xai_corr_file_fmt.format(cov_idx, run_idx)
+    print(corr_file)
+    dfC = pd.read_csv(corr_file)
+    corrs_ = dfC["pearson"].values
+    corrs[cov_idx, run_idx-1, :] = corrs_
+mean_corrs = np.mean(corrs, axis=1)
+sns.violinplot(data=[d for d in mean_corrs], linewidth = 1, ax=axs[1])
 plt.savefig(out_corr_file)
 
 print("Saving performance plot to: {}".format(out_performance_file))
