@@ -16,7 +16,6 @@ Archive source:
 https://beta.source.coop/csu/synthetic-attribution/
 '''
 
-
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
@@ -50,7 +49,7 @@ out_samples_file = out_dir + "/csu_samples.npz"
 out_function_file = out_dir + "/csu_pwl-fun.npz"
 out_output_file = out_dir + "/csu_pwl-out.npz"
 # Samples subset
-n_samples = int(options.num_samples)
+n_samples = options.num_samples
 
 if isDownload:
   if csu_file.is_file():
@@ -80,7 +79,9 @@ csu_data = xr.open_dataset(csu_file)
 max_samples = csu_data["time"].shape[0]
 if n_samples is None:
   n_samples = max_samples
-elif (n_samples > max_samples):
+else:
+  n_samples = int(n_samples)
+if (n_samples > max_samples):
   print("Requested {} samples, but only {} available!".format(n_samples, max_samples))
   print("Exiting...")
   exit(-1)
