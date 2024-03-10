@@ -3,6 +3,7 @@
 import os
 import numpy as np
 import pandas as pd
+import scipy.stats as stats
 from optparse import OptionParser
 
 def load_attributions(filename, varname):
@@ -46,7 +47,9 @@ def main():
   out_file = options.out_file
 
   a_attr = load_attributions(a_file, a_varname)
+  a_attrmaps = load_attributions(a_file, "attribution_maps")
   b_attr = load_attributions(b_file, b_varname)
+  b_attrmaps = load_attributions(b_file, "attribution_maps")
 
   if options.a_idxs is not None:
     a_idxs = np.array(options.a_idxs.split(",")).astype("int")
@@ -65,13 +68,10 @@ def main():
   n_compares = len(a_idxs)
   corrs = np.zeros((2, n_compares))
 
-  import scipy.stats as stats
-
   for i in range(n_compares):
-    c = np.corrcoef(a_attr[a_idxs[i]], 
-                    b_attr[b_idxs[i]])
-    corrs[0, i] = c[0,1]
-
+    r, p_value = stats.pearsonr(a_attr[a_idxs[i]],
+                                b_attr[b_idxs[i]])
+    corrs[0, i] = r
     rho, p_value = stats.spearmanr(a_attr[a_idxs[i]], 
                                    b_attr[b_idxs[i]])
     corrs[1, i] = rho
