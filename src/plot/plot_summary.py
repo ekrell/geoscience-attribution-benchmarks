@@ -18,6 +18,8 @@ parser.add_option("-i", "--indices",
                   default="0,1,2")
 (options, args) = parser.parse_args()
 
+plot_file = options.plot_file
+
 # Samples
 if options.samples_file is None:
   print("Expected a samples file ('-s').")
@@ -66,15 +68,23 @@ vmin_attrs = np.nanmin(attrmaps)
 vmax_attrs = np.nanmax(attrmaps)
 fig, axs = plt.subplots(n_show, 2)
 for i in range(n_show):
-  axs[i, 0].imshow(samples[idxs[i]], vmin=vmin_samples, vmax=vmax_samples)
-  axs[i, 1].imshow(attrmaps[idxs[i]], vmin=vmin_attrs, vmax=vmax_attrs)
+  sim = axs[i, 0].imshow(samples[idxs[i]], cmap="bwr",
+          vmin=vmin_samples, vmax=vmax_samples)
+  aim = axs[i, 1].imshow(attrmaps[idxs[i]], cmap="bwr",
+          vmin=vmin_attrs, vmax=vmax_attrs)
   if y is not None:
     axs[i, 0].set_xlabel("y = {}".format(y[idxs[i]]))
   axs[i, 0].set_xticks([])
   axs[i, 0].set_yticks([])
   axs[i, 1].set_xticks([])
   axs[i, 1].set_yticks([])
+  plt.colorbar(aim, ax=axs[i, 1])
+
 axs[0, 0].set_title("Sample")
 axs[0, 1].set_title("Attribution")
 plt.tight_layout()
-plt.show()
+
+if plot_file is None:
+    plt.show()
+else:
+    plt.savefig(plot_file)

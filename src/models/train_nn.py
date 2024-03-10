@@ -73,6 +73,9 @@ def main():
   parser.add_option("-q", "--quiet",
                     action="store_true",
                     help="Suppress printing each training epoch")
+  parser.add_option(      "--load_trained",
+                    action="store_true",
+                    help="Load trained instead.")
   (options, args) = parser.parse_args()
 
   samples_npz_file = options.samples_file
@@ -107,6 +110,8 @@ def main():
   learning_rate = options.learning_rate
 
   quiet = options.quiet
+ 
+  load_trained = options.load_trained
 
   # Setup device
   use_cuda = torch.cuda.is_available()
@@ -155,44 +160,73 @@ def main():
   # Generate a sequence of layers (hidden, activation)
   layers = [(hs, nn.ReLU()) for hs in hidden_sizes]
 
-  model = MLP(input_size, layers)
-  model = model.to(device)
-  if not quiet:
-    print(model)
+  if load_trained:
+    kwargs, state = torch.load(model_out_file)
+    model = MLP(**kwargs)
+    model.load_state_dict(state)
+    model = model.to(device)
+  else:
+    model = MLP(input_size, layers)
+    model = model.to(device)
+    if not quiet:
+      print(model)
 
-  loss_func = torch.nn.MSELoss()
-  optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+    loss_func = torch.nn.MSELoss()
+    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
-  # Training loop
-  loss_values = np.zeros((epochs, 2))
-  for epoch in range(epochs):
+    # Training loop
+    loss_values = np.zeros((epochs, 2))
+    for epoch in range(epochs):
 
-    # Update weights
-    loss_accum = 0
-    for x, y in dataloader_train:
-      x, y = x.to(device), y.to(device)
-      optimizer.zero_grad()
-      pred = model(x)
-      loss = loss_func(pred, y.unsqueeze(-1))
-      loss_accum += loss.item()
-      loss.backward()
-      optimizer.step()
-    loss_values[epoch, 0] = loss_accum / n_train_batches
+      # Update weights
+      loss_accum = 0
+      for x, y in dataloader_train:
+        x, y = x.to(device), y.to(device)
+        optimizer.zero_grad()
+        pred = model(x)
+        loss = loss_func(pred, y.unsqueeze(-1))
+        loss_accum += loss.item()
+        loss.backward()
+        optimizer.step()
+      loss_values[epoch, 0] = loss_accum / n_train_batches
 
-    # Validation
-    loss_accum = 0
-    for x, y in dataloader_valid:
-      x, y = x.to(device), y.to(device)
-      pred = model(x)
-      loss = loss_func(pred, y.unsqueeze(-1))
-      loss_accum += loss.item()
-    loss_values[epoch, 1] = loss_accum / n_valid_batches
+      # Validation
+      loss_accum = 0
+      for x, y in dataloader_valid:
+        x, y = x.to(device), y.to(device)
+        pred = model(x)
+        loss = loss_func(pred, y.unsqueeze(-1))
+        loss_accum += loss.item()
+      loss_values[epoch, 1] = loss_accum / n_valid_batches
 
-    if not quiet: 
-      print("Epoch {}/{}.  training loss: {},   validation loss: {}".format(
-        epoch + 1, epochs, loss_values[epoch,0], loss_values[epoch,1]))
+      if not quiet: 
+        print("Epoch {}/{}.  training loss: {},   validation loss: {}".format(
+          epoch + 1, epochs, loss_values[epoch,0], loss_values[epoch,1]))
 
-  # Calculate r2
+    # Write model
+    torch.save([model.kwargs, model.state_dict()], model_out_file)
+
+    # Write loss history
+    df_loss = pd.DataFrame(
+      {'train_loss': loss_values[:,0],
+       'valid_loss': loss_values[:,1]})
+    df_loss.to_csv(loss_out_file, index=False)
+    loss_out_file
+  
+    # Plot convergence curves
+    plt.plot(loss_values[:,0], label="train loss")
+    plt.plot(loss_values[:,1], label="valid loss")
+    plt.title("Loss history")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.legend()
+    if plot_out_file is not None:
+      plt.savefig(plot_out_file)
+    else:
+      plt.show()
+
+
+ # Calculate r2
   preds_train = model(data_train.X.to(device))
   r2_train = r2_score(data_train.y.numpy(), preds_train.detach().cpu().numpy())
   preds_valid = model(data_valid.X.to(device))
@@ -203,16 +237,6 @@ def main():
   print("r2:  training   = {}".format(r2_train))
   print("     validation = {}".format(r2_valid))
 
-  # Write model
-  torch.save([model.kwargs, model.state_dict()], model_out_file)
-
-  # Write loss history
-  df_loss = pd.DataFrame(
-    {'train_loss': loss_values[:,0],
-     'valid_loss': loss_values[:,1]})
-  df_loss.to_csv(loss_out_file, index=False)
-  loss_out_file
-
   # Write metrics
   if metrics_out_file is not None:
     types = ["training", "validation"]
@@ -222,18 +246,6 @@ def main():
       "r-square" : r2s,
     })
     dfMetrics.to_csv(metrics_out_file, index=False)
-
-  # Plot convergence curves
-  plt.plot(loss_values[:,0], label="train loss")
-  plt.plot(loss_values[:,1], label="valid loss")
-  plt.title("Loss history")
-  plt.xlabel("Epoch")
-  plt.ylabel("Loss")
-  plt.legend()
-  if plot_out_file is not None:
-    plt.savefig(plot_out_file)
-  else:
-    plt.show()
 
 
 if __name__ == "__main__":
