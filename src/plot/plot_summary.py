@@ -58,20 +58,17 @@ print("    'y' :             {}".format(y.shape if y is not None else "--"))
 
 print("Plotting samples:")
 print("  {}".format(idxs))
-
 print("")
 
 n_show = len(idxs)
-vmin_samples = np.nanmin(samples)
-vmax_samples = np.nanmax(samples)
-vmin_attrs = np.nanmin(attrmaps)
-vmax_attrs = np.nanmax(attrmaps)
+vmax_samples = np.nanmax(np.abs(samples))
+vmax_attrs = np.nanmax(np.abs(attrmaps))
 fig, axs = plt.subplots(n_show, 2)
 for i in range(n_show):
   sim = axs[i, 0].imshow(samples[idxs[i]], cmap="bwr",
-          vmin=vmin_samples, vmax=vmax_samples)
+          vmin=-1*vmax_samples, vmax=vmax_samples)
   aim = axs[i, 1].imshow(attrmaps[idxs[i]], cmap="bwr",
-          vmin=vmin_attrs, vmax=vmax_attrs)
+          vmin=-1*vmax_attrs, vmax=vmax_attrs)
   if y is not None:
     axs[i, 0].set_xlabel("y = {}".format(y[idxs[i]]))
   axs[i, 0].set_xticks([])
