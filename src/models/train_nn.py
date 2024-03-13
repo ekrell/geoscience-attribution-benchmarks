@@ -153,7 +153,7 @@ def main():
   n_valid_batches = len(dataloader_valid)
 
   # Model hyperparameters 
-  optimizer = optim.Adam
+  optimizer = optim.SGD
   input_size = n_valid_cells
   output_size = 1
 
