@@ -86,9 +86,12 @@ if (n_samples > max_samples):
   print("Exiting...")
   exit(-1)
 
+selected_samples = np.array(range(n_samples))
+selected_samples = np.array(range(979475,979475+100))
+
 # 'Samples' dataset
 # Samples
-samples = csu_data["SSTrand"][0:n_samples].to_numpy()
+samples = csu_data["SSTrand"][selected_samples].to_numpy()
 samples = samples.transpose(0, 2, 1)
 samples = np.expand_dims(samples, axis=-1)
 
@@ -107,9 +110,9 @@ edges = None  # Was not provided in the CSU dataset
 
 # 'Output' dataset
 # y
-y = csu_data["y"][0:n_samples].to_numpy()
+y = csu_data["y"][selected_samples].to_numpy()
 # Attribution maps
-attrmaps = csu_data["Cnt"][0:n_samples].to_numpy()
+attrmaps = csu_data["Cnt"][selected_samples].to_numpy()
 attrmaps = attrmaps.transpose(0, 2, 1)
 attrmaps = np.expand_dims(attrmaps, axis=-1)
 # Attributions
