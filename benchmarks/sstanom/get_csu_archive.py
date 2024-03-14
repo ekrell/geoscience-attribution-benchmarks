@@ -87,7 +87,6 @@ if (n_samples > max_samples):
   exit(-1)
 
 selected_samples = np.array(range(n_samples))
-selected_samples = np.array(range(979475,979475+100))
 
 # 'Samples' dataset
 # Samples
