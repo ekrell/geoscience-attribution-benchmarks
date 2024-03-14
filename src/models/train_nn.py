@@ -211,7 +211,6 @@ def main():
       {'train_loss': loss_values[:,0],
        'valid_loss': loss_values[:,1]})
     df_loss.to_csv(loss_out_file, index=False)
-    loss_out_file
   
     # Plot convergence curves
     plt.plot(loss_values[:,0], label="train loss")

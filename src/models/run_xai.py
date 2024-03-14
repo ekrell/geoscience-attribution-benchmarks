@@ -63,8 +63,6 @@ def main():
                     help="Path to trained pytorch model.")
   parser.add_option("-i", "--indices",
                     help="Comma-delimited list of sample indices to include in XAI runs.")
-  parser.add_option("-p", "--plot_directory",
-                    help="Path to directory to save plotted attribution maps.")
   parser.add_option("-x", "--xai_method",
                     default="integrated_gradients",
                     help="Select which XAI method to use.")
@@ -138,19 +136,6 @@ def main():
   attrib_maps = samples.copy()
   attrib_maps[:,valid_idxs] = attrib
   attrib_maps = np.reshape(attrib_maps, (n_samples, rows, cols, bands))
-
-  # Plot attribution maps
-  if plot_dir is not None:
-    for i, idx in enumerate(indices):
-      # Plot filename
-      plot_file = "{}/attribution_{}_{}.png".format(plot_dir, xai_method, idx)
-      # Plot map
-      fig, ax = plt.subplots()
-      ax.imshow(attrib_maps[i])
-      ax.set_xticks([])
-      ax.set_yticks([]) 
-      # Write plot
-      plt.savefig(plot_file)
 
   # Write attributions
   np.savez(attrib_file, attributions=attrib, attribution_maps=attrib_maps)
