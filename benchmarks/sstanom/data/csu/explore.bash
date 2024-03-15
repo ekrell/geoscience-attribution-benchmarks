@@ -2,15 +2,16 @@
 out_dir="benchmarks/sstanom/data/csu/"
 out_dir_xai="${out_dir}/xai/"
 n_samples=100000
-samples_to_plot="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20"
+samples_to_plot="0,1,2,3,4"
 xai_methods="input_x_gradient"
 
 # Get CSU dataset
 python benchmarks/sstanom/get_csu_archive.py \
   -i benchmarks/sstanom/data/csu/synth_exm_data.nc \
-  -o benchmarks/sstanom/data/csu/ \
-  -n "${n_samples}"
-  #-d
+  -o benchmarks/sstanom/data/csu/ #\
+#  -n "${n_samples}"
+
+exit 0
 
 # Train NN
 nn_hidden_nodes="512,256,128,64,32,16"
@@ -28,8 +29,7 @@ python src/models/train_nn.py \
   --epochs ${nn_epochs} \
   --batch_size ${nn_batch_size} \
   --learning_rate ${nn_learning_rate} \
-  --validation_fraction ${nn_validation_fraction} \
-  --load_trained
+  --validation_fraction ${nn_validation_fraction}
 
 # XAI
 for method in ${xai_methods[@]}; do
@@ -53,17 +53,11 @@ done
 # Plot summary
 python src/plot/plot_summary.py \
   -s benchmarks/sstanom/data/csu/csu_samples.npz \
-  -a benchmarks/sstanom/data/csu/csu_pwl-out.npz \
-  -o benchmarks/sstanom/data/csu/csu_pwl-out.npz \
-  --indices "0,1,2" \
-  -p benchmarks/sstanom/data/csu/summary_known.png
-
-python src/plot/plot_summary.py \
-  -s benchmarks/sstanom/data/csu/csu_samples.npz \
   -a benchmarks/sstanom/data/csu/xai/xai_input_x_gradient.npz \
   -o benchmarks/sstanom/data/csu/csu_pwl-out.npz \
-  --indices "0,1,2" \
-  -p benchmarks/sstanom/data/csu/summary_xai.png
+  --indices "0,1,2"
 
 cat benchmarks/sstanom/data/csu/xai/xai_input_x_gradient_corr.csv
+
+
 

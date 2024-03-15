@@ -35,8 +35,10 @@ parser.add_option("-d", "--download",
                   help="Download the CSU synthetic benchmark data.",
                   action="store_true",
                   default=False)
-parser.add_option("-n", "--num_samples",
-                  help="Include first n samples.")
+parser.add_option("-s", "--start_samples",
+                  help="Start index")
+parser.add_option("-e", "--end_samples",
+                  help="End index")
 (options, args) = parser.parse_args()
 
 # Download?
@@ -48,8 +50,9 @@ out_dir = options.out_dir
 out_samples_file = out_dir + "/csu_samples.npz"
 out_function_file = out_dir + "/csu_pwl-fun.npz"
 out_output_file = out_dir + "/csu_pwl-out.npz"
-# Samples subset
-n_samples = options.num_samples
+# Subset
+start_samples = options.start_samples
+end_samples = options.end_samples
 
 if isDownload:
   if csu_file.is_file():
@@ -77,16 +80,18 @@ if not csu_file.is_file():
 csu_data = xr.open_dataset(csu_file)
 
 max_samples = csu_data["time"].shape[0]
-if n_samples is None:
-  n_samples = max_samples
-else:
-  n_samples = int(n_samples)
-if (n_samples > max_samples):
-  print("Requested {} samples, but only {} available!".format(n_samples, max_samples))
-  print("Exiting...")
-  exit(-1)
 
-selected_samples = np.array(range(n_samples))
+# Subset
+if start_samples is None:
+  start_samples = 0
+else:
+  start_samples = int(start_samples)
+if end_samples is None:
+  end_samples = max_samples
+else:
+  end_samples = int(end_samples)
+
+selected_samples = np.array(range(start_samples, end_samples))
 
 # 'Samples' dataset
 # Samples
@@ -128,7 +133,6 @@ print("")
 print("SST Anom CSU Data Archive")
 print("-------------------------")
 print("- converting to 3 NPZ files")
-print("- selecting first {} samples".format(n_samples))
 print("")
 print("SAMPLES file:   {}".format(out_samples_file))
 print("  'samples'          : {}".format(samples.shape))

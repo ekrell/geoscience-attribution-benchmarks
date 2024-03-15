@@ -20,7 +20,7 @@ xai_methods = {
   "integrated_gradients"  : "integrated_gradients",
   "saliency"              : "gradient",
   "input_x_gradient"      : "input_t_gradient",
-  "lrp",                  : "lrp.z",
+  "lrp"                   : "lrp.z",
 }
 
 
@@ -101,9 +101,13 @@ def main():
   attribs = analyzer.analyze(sample_cells)
 
   attrmaps = np.zeros((n_samples, rows * cols * bands))
-  attrmaps[:, valid_idxs] = attribs[0]
+  attrmaps[:, valid_idxs] = attribs
   attrmaps = np.reshape(attrmaps, 
     (n_samples, rows, cols, bands))
+
+  # Write attributions
+  np.savez(attrib_file, attributions=attribs,
+    attribution_maps=attrmaps)
   
 
 if __name__ == "__main__":
