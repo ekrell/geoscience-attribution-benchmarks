@@ -35,3 +35,19 @@ There is also a script to plot several attribution maps to compare
 ![Example XAI comparison plot](img/xai_compare.png)
 
 
+## Alternative: Reuse Archived Benchmark
+
+- Mamalakis has made the synthetic dataset available from the 2022 publication
+- I have a script `csu_sstanom_benchmark.sh` that downloads this data and uses it for XAI
+- It includes:
+  - A set of 1,000,000 synthetic samples
+  - The targets (y) and attributions from the known function
+  - The trained TensorFlow model
+- My script allows you to either:
+  - Use the pretrained model for XAI
+  - Train a new model from scratch
+- Check the script to see what options are available
+
+
+
+
