@@ -55,10 +55,10 @@ fi
 
 # Train neural network to approximate synthetic function
 if [ "$skip_train_nn" = false ]; then
-  python src/models/train_nn.py \
+  python src/models/train_nn_tf.py \
     -s ${out_dir}/samples.npz \
     -t ${out_dir}/pwl-out.npz \
-    -m ${out_dir}/trained-model.pt \
+    -m ${out_dir}/trained-model.h5 \
     -c ${out_dir}/trained-history.csv \
     -p ${out_dir}/trained-history.png \
     --hidden_nodes ${nn_hidden_nodes} \
@@ -71,12 +71,11 @@ fi
 for method in ${xai_methods[@]}; do
   
   # Run XAI method
-  python src/models/run_xai.py \
+  python src/models/run_xai_tf.py \
     -x ${method} \
     -s ${out_dir}/samples.npz \
-    -m ${out_dir}/trained-model.pt \
+    -m ${out_dir}/trained-model.h5 \
     -i ${samples_to_plot} \
-    -p ${out_dir_xai}/ \
     -a ${out_dir_xai}/xai_${method}.npz
 
   # Compare XAI results to ground truth

@@ -6,14 +6,16 @@ csu_dir="benchmarks/sstanom/csu/"
 out_dir="${csu_dir}/out/"
 out_dir_xai="${out_dir}/xai/"
 
-samples_start=979475
+#samples_start=979475
+#samples_end=1000000
+samples_start=0
 samples_end=1000000
 xai_samples="0,1,2"
 xai_methods="input_x_gradient"
 
 download_data=false
-use_csu_model=true
-skip_training=true
+use_csu_model=false
+skip_training=false
 
 mkdir -p ${out_dir_xai}
 
