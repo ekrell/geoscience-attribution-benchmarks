@@ -44,6 +44,8 @@ These are actually a set of benchmarks based on changing the covariance matrix u
 
 ## Build & evaluate
 
+    mkdir benchmarks/varicov/unicov/out/
+
     # Generate covariance matrices
     python benchmarks/varicov/unicov/generate_covariances.py \
         -o benchmarks/varicov/unicov/out/ \       # Output directory

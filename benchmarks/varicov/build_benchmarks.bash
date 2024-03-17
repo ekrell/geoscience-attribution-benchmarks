@@ -81,11 +81,11 @@ do
     echo ""
 
     # Train NN
-    model_file=${out_dir}/nn_model_${cidx}__${i}.npz
+    model_file=${out_dir}/nn_model_${cidx}__${i}.h5
     loss_file=${out_dir}/nn_loss_${cidx}__${i}.csv
     loss_plot_file=${out_dir}/nn_loss_${cidx}__${i}.png
     metrics_file=${out_dir}/nn_metrics_${cidx}__${i}.csv
-    python src/models/train_nn.py \
+    python src/models/train_nn_tf.py \
       --quiet \
       --samples_file "${samples_file}" \
       --targets_file "${pwl_attribution_file}" \

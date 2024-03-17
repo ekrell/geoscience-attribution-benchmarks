@@ -21,7 +21,7 @@ _Image from [Mamalakis et al. (2022)](https://www.cambridge.org/core/journals/en
 
 The pipeline options (which XAI methods, NN hyperparameters, etc) can be modified in `config.json`.
 
-    bash create_sstanom_benchmark.sh
+    bash benchmarks/sstanom/create_sstanom_benchmark.sh
 
 There is also a script to plot several attribution maps to compare  
 

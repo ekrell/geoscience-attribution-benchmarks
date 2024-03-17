@@ -108,7 +108,6 @@ corrs = np.zeros((n_covs, n_runs-1, n_samples))
 for cov_idx in range(n_covs):
   for run_idx in range(1, n_runs):
     corr_file = xai_corr_file_fmt.format(cov_idx, run_idx)
-    print(corr_file)
     dfC = pd.read_csv(corr_file)
     corrs_ = dfC["pearson"].values
     corrs[cov_idx, run_idx-1, :] = corrs_

@@ -5,11 +5,12 @@ Each grid cell of a gridded raster input is assigned a value
 that represents the contribution of that cell toward the output.
 '''
 
-
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
 from optparse import OptionParser
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
 import keras
 import innvestigate

@@ -20,7 +20,7 @@ IFS=',' my_array=($xai_methods)
 n_reps=$(ls ${out_dir}/nn_loss_0__*.csv | wc -l)
 
 # Get indices of cov matrices based on what is found in output dir
-readarray -t covariance_idxs < <( ls ${out_dir}/cov*.npz | grep -o [0-9]* | uniq | sort -n )
+readarray -t covariance_idxs < <( ls ${out_dir}/cov*.npz | grep -o [0-9]*.npz | grep -o [0-9]* | uniq | sort -n )
 
 # For each covariance matrix
 for cidx in "${covariance_idxs[@]}"; do
@@ -30,19 +30,20 @@ for cidx in "${covariance_idxs[@]}"; do
 
   for (( i=0; i<n_reps; i++ )); do
     echo "  Trained model: ${i}"
-    model_file=${out_dir}/nn_model_${cidx}__${i}.npz
+    model_file=${out_dir}/nn_model_${cidx}__${i}.h5
 
     for method in ${xai_methods[@]}; do
       echo "    XAI method: ${method}"
 
       # Run XAI method
       xai_file=${out_dir_xai}/${method}_${cidx}__${i}.npz
-      python src/models/run_xai.py \
+      python src/models/run_xai_tf.py \
         --xai_method "${method}" \
         --samples_file "${samples_file}" \
         --model_file "${model_file}" \
         --indices "${samples}" \
         --attributions_file "${xai_file}"
+
       
       # Compare XAI results to ground truth
       xai_compare_file=${out_dir_xai}/pwl-${method}_${cidx}__${i}.csv
@@ -51,6 +52,8 @@ for cidx in "${covariance_idxs[@]}"; do
         --a_idxs "${samples}" \
         --b_file "${xai_file}" \
         --out_file "${xai_compare_file}"
+
+      head "${xai_compare_file}"
 
      done
   done
@@ -80,6 +83,7 @@ for cidx in "${covariance_idxs[@]}"; do
     echo ""
   done
 done
+
 
 for method in ${xai_methods[@]}; do
   # Plot summary over entire set of benchmarks
