@@ -49,6 +49,8 @@ ${cov_cmd}
 # Get the indices of the generated matrices based on the files created
 readarray -t covariance_idxs < <( ls ${out_dir}/cov*.npz | grep -o [0-9]* | uniq | sort -n )
 
+covariance_idxs=("8")
+
 for cidx in "${covariance_idxs[@]}"
 do
     echo "Building synthetic benchmark using: ${cov_file}"
