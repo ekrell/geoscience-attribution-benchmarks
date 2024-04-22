@@ -93,5 +93,5 @@ for method in ${xai_methods[@]}; do
       --metric "r-square" \
       --output_corr_file "${out_dir_xai}/corr_compare_summary_${method}.pdf" \
       --output_perf_file "${out_dir_xai}/performance_summary.pdf"  \
-      --output_scatter_file "${out_dir_xai}/scatter_summary.pdf"
+      --output_scatter_file "${out_dir_xai}/scatter_summary_${method}.pdf"
 done
