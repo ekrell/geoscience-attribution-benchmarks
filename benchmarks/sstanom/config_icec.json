@@ -1,6 +1,6 @@
 {
-    "out_dir": "benchmarks/sstanom/out/",
-    "covariance_file": "benchmarks/sstanom/out/cov.npz",
+    "out_dir": "benchmarks/sstanom/out/icec/",
+    "covariance_file": "benchmarks/sstanom/out/icec/cov.npz",
     "n_samples": "1000000",
     "n_pwl_breaks": "5",
     "samples_to_plot": "0;10;100;200;300",
@@ -11,4 +11,6 @@
     "nn_learning_rate": "0.02",
     "nn_validation_fraction": "0.1",
     "xai_methods": "saliency;integrated_gradients;input_x_gradient;lrp",
+    "variable": "icec",
+    "anomaly": "false"
 }
