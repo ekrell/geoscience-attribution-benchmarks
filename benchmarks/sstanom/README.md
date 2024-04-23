@@ -14,7 +14,7 @@ _Image from [Mamalakis et al. (2022)](https://www.cambridge.org/core/journals/en
 
 This code is designed to create synethetic benchmarks from four base data sets. 
 Each created by extracting samples from the [COBE-SST 2 and Sea Ice Gridded Climate Dataset](https://psl.noaa.gov/data/gridded/data.cobe2.html). 
-Since this folder is called `sstanom` since that was the original purpose. 
+This benchmark folder is called `sstanom` since that was the original purpose. 
 
 1. `sst` : Sea Surface Temperature, directly from COBE.
 2. `icec` : Sea Ice Concentration, directly from COBE.
@@ -47,7 +47,7 @@ Below is a configuration file for the `sstanom` pipeline that replicates the res
 	}
 
 The following describes each option. 
-Read the [Mamalakis et al. (2022) paper]() to get more insight on their purpose. 
+Read the [Mamalakis et al. (2022) paper](https://www.cambridge.org/core/journals/environmental-data-science/article/neural-network-attribution-methods-for-problems-in-geoscience-a-novel-synthetic-benchmark-dataset/DDA562FC7B9A2B30710582861920860E) to get more insight on their purpose. 
 These short descriptions are simply to help you match them up to the concepts in the paper. 
 
 - `out_dir` : Path to save all pipeline output files. 
@@ -67,7 +67,7 @@ These short descriptions are simply to help you match them up to the concepts in
 
 **Available XAI methods**
 
-See the [Mamalakis et al. (2022) paper]() for method descriptions. 
+See the [Mamalakis et al. (2022) paper](https://www.cambridge.org/core/journals/environmental-data-science/article/neural-network-attribution-methods-for-problems-in-geoscience-a-novel-synthetic-benchmark-dataset/DDA562FC7B9A2B30710582861920860E) for method descriptions. 
 
 - `saliency` : saliency maps
 - `integrated_gradients` : integrated gradients
