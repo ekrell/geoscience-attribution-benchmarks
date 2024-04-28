@@ -8,7 +8,7 @@ from utils import get_valid_cells
 
 
 # Trained model
-model_file = "testout/nn_model_0__0.h5"
+model_file = "testout/nn_model_0__1.h5"
 # Predictors
 samples_file = "testout/samples_0.npz"
 samples_varname = "samples"
@@ -16,8 +16,8 @@ samples_varname = "samples"
 targets_file = "testout/pwl-out_0.npz"
 targets_varname = "y"
 # Attributions
-attribs_file = "testout/pwl-out_0.npz"
-#attribs_file = "testout/input_x_gradient_0__1.npz"
+#attribs_file = "testout/pwl-out_0.npz"
+attribs_file = "testout/input_x_gradient_0__1.npz"
 attribs_varname = "attributions"
 
 samples_idxs = np.array(range(30))
@@ -72,14 +72,11 @@ params = {
 def faithfulness_correlation(model, x, y, a, params):
 
   def evaluate_instance(model, x, y, a, params):
-
     # Predict on input
-    x_input = x
     y_pred = model(np.expand_dims(x, axis=0))
 
     pred_deltas = np.zeros(n_runs)
     att_sums = np.zeros(n_runs)
-
     # For each test data point
     for i_ix in range(n_runs):
       # Randomly mask the attribution by subset size
@@ -91,7 +88,7 @@ def faithfulness_correlation(model, x, y, a, params):
       pred_deltas[i_ix] = y_pred[0][0] - y_pred_perturbed[0][0]
 
       # Sum attributions of the random subset
-      att_sums[i_ix] = np.sum(a[a_ix])
+      att_sums[i_ix] = np.sum(np.abs(a[a_ix]))
 
     # Correlation between sum of masked attributions and change in prediction
     corr = np.corrcoef(pred_deltas, att_sums)[0,1]
