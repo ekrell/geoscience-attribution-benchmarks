@@ -21,6 +21,10 @@ def flatten(x):
 
 def faithfulness_correlation(model, x, y, a, params):
 
+  # Based on Bhatt et al. (2020)
+  # DOI:10.24963/ijcai.2020/417
+  # Code is based in implementation in Quantus package
+
   def evaluate_instance(model, x, y, a, params):
     # Predict on input
     y_pred = model(np.expand_dims(x, axis=0))
@@ -74,6 +78,8 @@ parser.add_option("-p", "--plot_file",
 parser.add_option("-e", "--eval_metric",
                   help="Evaluation metric string",
                   default="faithfulness_correlation,30,50,0.0")
+parser.add_option("-c", "--colnames",
+                  help="Custom column names for each attribution's score. Match order of filenames.")
 
 (options, args) = parser.parse_args()
 
@@ -93,6 +99,10 @@ gtattrs_file = options.groundtruth_file
 gtattrs_varname = "attributions"
 # Output file
 out_file = options.output_file
+# CSV column names
+colnames = options.colnames
+if colnames is not None:
+    colnames = colnames.split(",")
 # Plot file
 plot_file = options.plot_file
 
@@ -165,8 +175,12 @@ for a_i, attribs_file in enumerate(attribs_files):
         all_corrs[a_i] = corrs
 
 dfScores = pd.DataFrame()
+
+if colnames is None:
+    colnames = ["attribs_{}".format(i) for i in range(len(all_scores))]
+
 for i, scores in enumerate(all_scores):
-    dfScores["attribs_{}".format(i)] = scores
+    dfScores[colnames[i]] = scores   ###
 dfScores.to_csv(out_file, index=False)
 
 n_axs = 1

@@ -24,8 +24,16 @@ The _global_ in `globalcov` refers to the origin of the based covariance matrix:
     # Evaluate the XAI variance
     bash benchmarks/varicov/run_xai.bash \   
         benchmarks/varicov/globalcov/out/ \     # Output directory
-        input_x_gradient \                   # Which XAI method to apply
-        1,2,3,4,5,6,7,8,9,10                 # Which samples to include in plots
+        input_x_gradient \                      # Which XAI method to apply
+        $(seq -s"," 0 99)                       # Which samples to include in plots
+
+    # Evaluate XAI metrics (e.g. Faithfulness Correlation)
+    bash benchmarks/varicov/run_xai_evals.bash  \
+        benchmarks/varicov/globalcov/out/  \
+        input_x_gradient \                       # Which XAI to evaluate
+        faithfulness_correlation,30,50,0.0 \     # Metric and its options
+        $(seq -s"," 0 99) \                      # Sample indices
+        $(seq -s"," 0 99)                        # XAIindices 
 
 ## Example outputs
 
