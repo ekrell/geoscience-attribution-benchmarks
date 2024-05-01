@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import h5py
+from scipy import stats
 from optparse import OptionParser
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -19,11 +20,119 @@ def flatten(x):
   x, _, _ = get_valid_cells(x)
   return x
 
+def monotonicity_correlation(model, x, y, a, params):
+
+  # Based on from scipy import stats
+  # https://arxiv.org/abs/2007.07584 
+  # Code is based on implementation in Quantus package
+
+  def evaluate_instance(model, x, y, a, params):
+
+    # Predict on input
+    y_pred = model(np.expand_dims(x, axis=0))[0][0]
+
+    inv_pred = 1.0 if np.abs(y_pred) < params["eps"] else 1.0 / np.abs(y_pred)
+    inv_pred = inv_pred ** 2
+
+    # Absolute value of attributions
+    a = np.abs(a)
+
+    # Get indices of sorted attributions (ascending)
+    a_indices = np.argsort(a)
+    n_perturbations = len(a_indices)
+
+    atts = [None for _ in range(n_perturbations)]
+    vars = [None for _ in range(n_perturbations)]
+
+    for i_ix, a_ix in enumerate(a_indices):
+      # Perturb input by indices of attributions
+      a_ix = a_indices[i_ix : i_ix + 1]
+      y_pred_perturbs = []
+
+      for s_ix, mask_value in enumerate(params["mask_values"]):
+          x_perturbed = x.copy()
+          x_perturbed[a_ix] = mask_value
+          y_pred_perturb = model(np.expand_dims(x_perturbed, axis=0))[0][0]
+          y_pred_perturbs.append(y_pred_perturb)
+
+      vars[i_ix] = float(np.mean((np.array(y_pred_perturbs) - \
+                         np.array(y_pred)) ** 2) * inv_pred)
+      atts[i_ix] = float(sum(a[a_ix]))
+
+    #res, _ = stats.spearmanr(atts, vars)
+    res = np.corrcoef(atts, vars)[0, 1]
+    return res
+
+  # Use the mean, std to determine 5 replacement values to use
+  # (Instead of the the usual '0', will take mean of all five)
+  x_mean = np.mean(x)
+  x_std = np.std(x)
+  mask_values = np.array([
+    x_mean - x_std,
+    x_mean - 0.5 * x_std,
+    x_mean,
+    x_mean + 0.5 * x_std,
+    x_mean + x_std,
+  ])
+
+  params["eps"] = 1e-5
+  params["mask_values"] = mask_values
+
+  n_samples = x.shape[0]
+  scores = np.zeros(n_samples)
+  for i in range(n_samples):
+    print("  instance: ", i)
+    scores[i] = evaluate_instance(model, x[i], y[i], a[i], params)
+
+  return scores
+
+
+def pixel_flipping(model, x, y, a, params):
+
+  # Based on Bach et al., 2015
+  # DOI:10.1371/journal.pone.0130140
+  # Code is based on implementation in Quantus package
+
+  def evaluate_instance(model, x, y, a, params):
+
+    mask_value = 0
+
+    y_pred = model(np.expand_dims(x, axis=0))[0][0]
+
+    # Get indices of sorted attributions (descending)
+    a_indices = np.argsort(-np.abs(a))
+
+    # Prepare lists
+    n_perturbations = len(a_indices)
+    preds = np.zeros(n_perturbations)
+    x_perturbed = x.copy()
+
+    for i_ix, a_ix in enumerate(a_indices):
+
+      # Perturb input by indices of attributions
+      a_ix = a_indices[i_ix : i_ix + 1]
+      x_perturbed[a_ix] = mask_value
+
+      # Predict on perturbed input
+      y_pred_perturbed = model(np.expand_dims(x_perturbed, axis=0))[0][0]
+      preds[i_ix] = y_pred_perturbed / y_pred
+
+    return np.trapz(preds) / len(a_indices)
+
+  n_samples = x.shape[0]
+  scores = np.zeros(n_samples)
+  for i in range(n_samples):
+    print("  instance: ", i)
+    scores[i] = evaluate_instance(model, x[i], y[i], a[i], params)
+
+  return scores
+
+
 def faithfulness_correlation(model, x, y, a, params):
 
   # Based on Bhatt et al. (2020)
   # DOI:10.24963/ijcai.2020/417
-  # Code is based in implementation in Quantus package
+  # Code is based on implementation in Quantus package
 
   def evaluate_instance(model, x, y, a, params):
     # Predict on input
@@ -124,6 +233,12 @@ if metric == "faithfulness_correlation":
       "subset_size" : int(args[1]),
       "mask_value" : float(args[2]),
       }
+if metric == "pixel_flipping":
+    metric_func = pixel_flipping
+    params = {}
+if metric == "monotonicity_correlation":
+    metric_func = monotonicity_correlation
+    params = {}
 else:
     print("Unrecognized metric: {}".format(metric))
     print("Exiting...")
