@@ -22,8 +22,14 @@ xai_methods = {
   "saliency"              : "gradient",
   "input_x_gradient"      : "input_t_gradient",
   "lrp"                   : "lrp.z",
+  "shap"                  : "shap",
 }
 
+def run_shap(model, data):
+  print(model)
+  print(data)
+
+  return None
 
 def main():
 
@@ -98,8 +104,11 @@ def main():
   print("      shape: {}x{}x{}.".format(rows, cols, bands))
 
   # Run selected XAI method
-  analyzer = innvestigate.create_analyzer(xai_methods[xai_method], model)
-  attribs = analyzer.analyze(sample_cells)
+  if xai_method != "shap":
+    analyzer = innvestigate.create_analyzer(xai_methods[xai_method], model)
+    attribs = analyzer.analyze(sample_cells)
+  else:
+    attribs = run_shap(model, sample_cells)
 
   attrmaps = np.zeros((n_samples, rows * cols * bands))
   attrmaps[:, valid_idxs] = attribs
