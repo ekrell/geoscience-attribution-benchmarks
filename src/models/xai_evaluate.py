@@ -20,47 +20,82 @@ def flatten(x):
   x, _, _ = get_valid_cells(x)
   return x
 
+def normalize_by_max(a):
+  # No normalisation if a is only zeros
+  if np.all(a == 0.0):
+    return a
+
+  normalise_axes = list(range(np.ndim(a)))
+  # Cast Sequence to tuple so numpy accepts it
+  normalise_axes = tuple(normalise_axes)
+
+  a_max = np.max(np.abs(a), axis=normalise_axes, keepdims=True)
+  a = np.divide(a, a_max)
+  return a
+
+
+def sparseness(model, x, y, a, params):
+
+  # Based on Chalasani et al., 2020
+  # http://proceedings.mlr.press/v119/chalasani20a/chalasani20a.pdf
+  # Code is based on implementation in Quantus package
+
+
+  def evaluate_instance(model, x, y, a, params):
+    if len(x.shape) == 1:
+      newshape = np.prod(x.shape)
+    else:
+      newshape = np.prod(x.shape[1:])
+
+    a = np.array(np.reshape(a, newshape), dtype=np.float64) / np.sum(np.abs(a))
+    a += 0.0000001
+    a = np.sort(a)
+    score = (np.sum((2 * np.arange(1, a.shape[0] + 1) - a.shape[0] - 1) * a)) / (
+            a.shape[0] * np.sum(a)
+    )
+    return score
+
+  # Absolute value attributions
+  a = np.abs(a)
+
+  n_samples = x.shape[0]
+  scores = np.zeros(n_samples)
+  for i in range(n_samples):
+    print("  instance: ", i)
+    scores[i] = evaluate_instance(model, x[i], y[i], a[i], params)
+
+  return scores
+
+
 def monotonicity_correlation(model, x, y, a, params):
 
-  # Based on from scipy import stats
+  # Based on Nguyen et al. 2022
   # https://arxiv.org/abs/2007.07584 
   # Code is based on implementation in Quantus package
 
-  def evaluate_instance(model, x, y, a, params):
 
+  def evaluate_instance(model, x, y, a, params):
     # Predict on input
     y_pred = model(np.expand_dims(x, axis=0))[0][0]
-
     inv_pred = 1.0 if np.abs(y_pred) < params["eps"] else 1.0 / np.abs(y_pred)
     inv_pred = inv_pred ** 2
-
-    # Absolute value of attributions
-    a = np.abs(a)
 
     # Get indices of sorted attributions (ascending)
     a_indices = np.argsort(a)
     n_perturbations = len(a_indices)
 
-    atts = [None for _ in range(n_perturbations)]
-    vars = [None for _ in range(n_perturbations)]
+    n_masks = len(params["mask_values"])
+    y_pred_perturbs = np.empty((n_perturbations, n_masks))
+    x_perturbed = np.tile(x, (n_perturbations, 1))
+    for m_ix in range(n_masks):
+      x_perturbed[np.arange(n_perturbations), a_indices] = params["mask_values"][m_ix]
+      y_pred_perturbs[:, m_ix] = model(x_perturbed)[:,0]
 
-    for i_ix, a_ix in enumerate(a_indices):
-      # Perturb input by indices of attributions
-      a_ix = a_indices[i_ix : i_ix + 1]
-      y_pred_perturbs = []
-
-      for s_ix, mask_value in enumerate(params["mask_values"]):
-          x_perturbed = x.copy()
-          x_perturbed[a_ix] = mask_value
-          y_pred_perturb = model(np.expand_dims(x_perturbed, axis=0))[0][0]
-          y_pred_perturbs.append(y_pred_perturb)
-
-      vars[i_ix] = float(np.mean((np.array(y_pred_perturbs) - \
-                         np.array(y_pred)) ** 2) * inv_pred)
-      atts[i_ix] = float(sum(a[a_ix]))
-
-    #res, _ = stats.spearmanr(atts, vars)
+    y_pred_perturbs = (y_pred_perturbs - y_pred) ** 2
+    vars = np.mean(y_pred_perturbs, axis=1) * inv_pred
+    atts = a[a_indices]
     res = np.corrcoef(atts, vars)[0, 1]
+    #res, _ = stats.spearmanr(atts, vars)
     return res
 
   # Use the mean, std to determine 5 replacement values to use
@@ -77,6 +112,9 @@ def monotonicity_correlation(model, x, y, a, params):
 
   params["eps"] = 1e-5
   params["mask_values"] = mask_values
+
+  # Absolute value of attributions
+  a = np.abs(a)
 
   n_samples = x.shape[0]
   scores = np.zeros(n_samples)
@@ -233,11 +271,14 @@ if metric == "faithfulness_correlation":
       "subset_size" : int(args[1]),
       "mask_value" : float(args[2]),
       }
-if metric == "pixel_flipping":
+elif metric == "pixel_flipping":
     metric_func = pixel_flipping
     params = {}
-if metric == "monotonicity_correlation":
+elif metric == "monotonicity_correlation":
     metric_func = monotonicity_correlation
+    params = {}
+elif metric == "sparseness":
+    metric_func = sparseness
     params = {}
 else:
     print("Unrecognized metric: {}".format(metric))
@@ -303,15 +344,17 @@ if gtattrs_file is not None:
     n_axs = 2
 
 fig, axs = plt.subplots(n_axs, squeeze=False)
-# Distributions of faithfulness scores
+# Distributions of scores
 sns.violinplot(data=all_scores, ax=axs[0][0])
 axs[0][0].set_ylim(-1.0, 1.0)
 axs[0][0].set_title(eval_str)
+axs[0][0].set_xticklabels(colnames)
 # Distributions of ground truth corrs
 if gtattrs_file is not None:
     sns.violinplot(data=all_corrs, ax=axs[1][0])
     axs[1][0].set_ylim(-1.0, 1.0)
     axs[1][0].set_title("Ground Truth Correlation")
+    axs[1][0].set_xticklabels(colnames)
 plt.tight_layout()
 
 if plot_file is not None:
