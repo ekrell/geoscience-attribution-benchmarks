@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import glob
 from math import ceil
+from itertools import combinations
 from optparse import OptionParser
 
 parser = OptionParser()
@@ -21,10 +22,13 @@ parser.add_option("-c", "--output_corr_file",
                   default="benchmarks/unicov/out/xai/corr_compare_summary.pdf")
 parser.add_option("-s", "--output_scatter_file",
                   help="Path to to save comparison of correlations among models vs against ground truth.",
-                  default="benchmarks/unicov/out/cai/corr_scatter_summary.pdf")
+                  default="benchmarks/unicov/out/xai/corr_scatter_summary.pdf")
 parser.add_option("-p", "--output_perf_file",
                   help="Path to save summary performance plot.",
                   default="benchmarks/unicov/out/xai/performance_summary.pdf")
+parser.add_option("-t", "--tag",
+                  help="Option filename tag (e.g. 'train-').",
+                  default="")
 (options, args) = parser.parse_args()
 
 input_dir = options.input_dir
@@ -33,6 +37,8 @@ metric = options.metric
 out_performance_file = options.output_perf_file
 out_corr_file = options.output_corr_file
 out_scatter_file = options.output_scatter_file
+
+tag=options.tag
 
 print("")
 print("Benchmark Summary Plot")
@@ -60,7 +66,7 @@ cov_labels = np.sort(np.unique(nn_reps[:,1]))
 n_covs = len(cov_labels)
 
 # Open first file to find the number of samples
-corr_file_fmt = input_dir + "/xai/" + "pwl-input_x_gradient_{}__{}.csv"
+corr_file_fmt = input_dir + "/xai/" + tag + "pwl-" + xai_label + "_{}__{}.csv"
 corr_file = corr_file_fmt.format(cov_labels[0], 0)
 dfC = pd.read_csv(corr_file)
 n_samples=dfC["pearson"].values.shape[0]
@@ -93,14 +99,17 @@ min_v = min([min_t, min_v, 0.5])
 
 ax.set_ylim(min_v, 1.0)
 
+labels = [[None, None] for _ in range(n_runs)]
+labels[0] = ["training", "validation"]
 # Plot metrics for each run
 for run_idx in range(n_runs):
   ax.scatter(x=cov_labels, 
           y=train_metrics[:,run_idx], marker="*", facecolors='tab:blue', 
-          edgecolors='k', s=400, alpha=0.5)
+          edgecolors='k', s=325, alpha=0.5, label=labels[run_idx][0])
   ax.scatter(x=cov_labels, 
           y=valid_metrics[:,run_idx], marker="o", facecolors='tab:red', 
-          edgecolors='k', s=400, alpha=0.5)
+          edgecolors='k', s=250, alpha=0.5, label=labels[run_idx][1])
+ax.legend(loc="lower left")
 
 plt.savefig(out_performance_file)
 plt.clf()
@@ -118,24 +127,31 @@ for cov_idx in range(n_covs):
     corrs[cov_idx, run_idx, :] = corrs_
 mean_corrs = np.mean(corrs, axis=1)
 sns.violinplot(data=[d for d in mean_corrs], linewidth = 1, ax=axs[0])
-axs[0].set_ylim(-.25, 1.0)
+axs[0].set_ylim(-1.0, 1.0)
 axs[0].set_title("Correlation between XAI & known attributions")
 
 mean_corrs_known = mean_corrs.copy()
 
 # Plot another one (corr between XAI... multiple training reps)
-xai_corr_file_fmt = input_dir + "/xai/" + xai_label + "_{}__0v{}.csv"
-corrs = np.zeros((n_covs, n_runs-1, n_samples))
+xai_corr_file_fmt = input_dir + "/xai/" + tag + xai_label + "_{}__{}v{}.csv"
+pairs = list(combinations(range(n_runs), 2))
+corrs = np.zeros((n_covs, len(pairs), n_samples))
+
 for cov_idx in range(n_covs):
-  for run_idx in range(1, n_runs):
-    corr_file = xai_corr_file_fmt.format(cov_idx, run_idx)
+  for i, pair in enumerate(pairs):
+    corr_file = xai_corr_file_fmt.format(cov_idx, pair[0], pair[1])
     dfC = pd.read_csv(corr_file)
     corrs_ = dfC["pearson"].values
-    corrs[cov_idx, run_idx-1, :] = corrs_
+    corrs[cov_idx, i, :] = corrs_
+
 mean_corrs = np.mean(corrs, axis=1)
 sns.violinplot(data=[d for d in mean_corrs], linewidth = 1, ax=axs[1])
-axs[1].set_ylim(-.25, 1.0)
+axs[1].set_ylim(-1.0, 1.0)
 axs[1].set_title("Correlation between XAI from multiple NN training repetitions")
+axs[0].set_ylabel("Pearson correlation")
+axs[1].set_ylabel("Pearson correlation")
+axs[1].set_xlabel("Covariance matrix")
+
 
 plt.tight_layout()
 plt.savefig(out_corr_file)
