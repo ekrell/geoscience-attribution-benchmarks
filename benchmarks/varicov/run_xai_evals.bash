@@ -18,6 +18,11 @@ xai_methods_str=$2    # XAI methods  (comma-delimited list)
 eval_str=$3           # XAI evaluation method and its options
 sample_idxs=$4        # Comma-delimited indices of the Samples
 xai_idxs=$5           # Comma-delimited indices of the Attributions
+tag=$6                # Filename tag   (e.g. "train", "valid", ...)
+
+if [ "$tag" != "" ]; then
+  tag="${tag}_"
+fi
 
 out_dir_xai=${out_dir}/xai/
 n_reps=$(ls ${out_dir}/nn_loss_0__*.csv | wc -l)
@@ -46,7 +51,7 @@ for cidx in "${covariance_idxs[@]}"; do
 
 	xai_files=""
 	for method in ${xai_methods[@]}; do
-		xai_files="${out_dir_xai}/${method}_${cidx}__${i}.npz,${xai_files}"
+		xai_files="${out_dir_xai}/${tag}${method}_${cidx}__${i}.npz,${xai_files}"
 	done
 	xai_files=$(echo $xai_files | sed 's/.\{1\}$//')
 
@@ -56,8 +61,8 @@ for cidx in "${covariance_idxs[@]}"; do
 	done
 	colnames=$(echo $colnames | sed 's/.\{1\}$//')
 
-	output_file="${out_dir_xai}/xaieval_${eval_str}_${xai_methods_str}_${cidx}__${i}.csv"
-	plot_file="${out_dir_xai}/xaieval_${eval_str}_${xai_methods_str}_${cidx}__${i}.pdf"
+	output_file="${out_dir_xai}/${tag}xaieval_${eval_str}_${xai_methods_str}_${cidx}__${i}.csv"
+	plot_file="${out_dir_xai}/${tag}xaieval_${eval_str}_${xai_methods_str}_${cidx}__${i}.pdf"
 
 	python src/models/xai_evaluate.py \
 		-m ${model_file} \
@@ -91,13 +96,15 @@ done
 runidxs=$(echo $runidxs | sed 's/\,//')
 
 for method in ${xai_methods[@]}; do
-	plot_file="${out_dir_xai}/xaieval_${eval_str}_${method}_summary.pdf"
+	plot_file="${out_dir_xai}/${tag}xaieval_${eval_str}_${method}_summary.pdf"
 	python benchmarks/varicov/plot_xai_metrics.py \
 		-d ${out_dir_xai} \
 		-e ${eval_str} \
 		-x ${method} \
 		-c ${covidxs} \
 		-r ${runidxs} \
-		-p ${plot_file}
+		-p ${plot_file} \
+		-t ${tag} \
+		-f ${xai_methods_str}
 	echo "Summary plot for method ${method}: ${plot_file}"
 done

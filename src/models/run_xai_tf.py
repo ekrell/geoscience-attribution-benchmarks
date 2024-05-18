@@ -23,13 +23,34 @@ xai_methods = {
   "input_x_gradient"      : "input_t_gradient",
   "lrp"                   : "lrp.z",
   "shap"                  : "shap",
-}
+  "lime"                  : "lime",
+} 
 
-def run_shap(model, data):
-  print(model)
-  print(data)
+def run_lime(model, X):
+  from lime import lime_tabular
 
-  return None
+  n_samples = X.shape[0]
+  n_features = X.shape[1]
+  attribs = np.zeros((n_samples, n_features))
+
+  explainer_lime = lime_tabular.LimeTabularExplainer(
+                   X, verbose=False, mode='regression')
+
+  for i in range(n_samples):
+    exp_lime = explainer_lime.explain_instance(
+               X[i], model.predict, num_features=len(X[0]))
+    attribs[i] = np.array([l[1] for l in exp_lime.as_list()])
+
+  return attribs
+
+def run_shap(model, X, nsamples=1000):
+  import shap
+  zeros = np.expand_dims(np.zeros(X.shape[1:]), axis=0)
+  explainer = shap.KernelExplainer(model.predict, zeros)
+  shap_values = explainer.shap_values(X, nsamples=nsamples)
+  shap_values = np.squeeze(shap_values)
+
+  return shap_values
 
 def main():
 
@@ -104,11 +125,13 @@ def main():
   print("      shape: {}x{}x{}.".format(rows, cols, bands))
 
   # Run selected XAI method
-  if xai_method != "shap":
+  if xai_method == "shap":
+    attribs = run_shap(model, sample_cells)
+  elif xai_method == "lime":
+    attribs = run_lime(model, sample_cells)
+  else:
     analyzer = innvestigate.create_analyzer(xai_methods[xai_method], model)
     attribs = analyzer.analyze(sample_cells)
-  else:
-    attribs = run_shap(model, sample_cells)
 
   attrmaps = np.zeros((n_samples, rows * cols * bands))
   attrmaps[:, valid_idxs] = attribs

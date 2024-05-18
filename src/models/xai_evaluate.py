@@ -125,47 +125,6 @@ def monotonicity_correlation(model, x, y, a, params):
   return scores
 
 
-def pixel_flipping(model, x, y, a, params):
-
-  # Based on Bach et al., 2015
-  # DOI:10.1371/journal.pone.0130140
-  # Code is based on implementation in Quantus package
-
-  def evaluate_instance(model, x, y, a, params):
-
-    mask_value = 0
-
-    y_pred = model(np.expand_dims(x, axis=0))[0][0]
-
-    # Get indices of sorted attributions (descending)
-    a_indices = np.argsort(-np.abs(a))
-
-    # Prepare lists
-    n_perturbations = len(a_indices)
-    preds = np.zeros(n_perturbations)
-    x_perturbed = x.copy()
-
-    for i_ix, a_ix in enumerate(a_indices):
-
-      # Perturb input by indices of attributions
-      a_ix = a_indices[i_ix : i_ix + 1]
-      x_perturbed[a_ix] = mask_value
-
-      # Predict on perturbed input
-      y_pred_perturbed = model(np.expand_dims(x_perturbed, axis=0))[0][0]
-      preds[i_ix] = y_pred_perturbed / y_pred
-
-    return np.trapz(preds) / len(a_indices)
-
-  n_samples = x.shape[0]
-  scores = np.zeros(n_samples)
-  for i in range(n_samples):
-    print("  instance: ", i)
-    scores[i] = evaluate_instance(model, x[i], y[i], a[i], params)
-
-  return scores
-
-
 def faithfulness_correlation(model, x, y, a, params):
 
   # Based on Bhatt et al. (2020)
@@ -176,23 +135,28 @@ def faithfulness_correlation(model, x, y, a, params):
     # Predict on input
     y_pred = model(np.expand_dims(x, axis=0))
 
-    pred_deltas = np.zeros(params["n_runs"])
     attr_sums = np.zeros(params["n_runs"])
-    # For each test data point
-    for i_ix in range(params["n_runs"]):
-      # Randomly mask the attribution by subset size
-      a_ix = np.random.choice(a.shape[0], params["subset_size"], replace=False)
-      x_perturbed = x.copy()
-      x_perturbed[a_ix] = params["mask_value"]
-      # Predict on perturbed input
-      y_pred_perturbed = model(np.expand_dims(x_perturbed, axis=0))
-      pred_deltas[i_ix] = y_pred[0][0] - y_pred_perturbed[0][0]
 
-      # Sum attributions of the random subset
-      attr_sums[i_ix] = np.sum(a[a_ix])
+    # Perturb on random indices
+    a_ix = np.vstack(
+            [np.random.choice(a.shape[0], params["subset_size"], replace=False) \
+            for _ in range(params["n_runs"])]
+    )
+    x_perturbed = np.tile(x, (params["n_runs"], 1))
+    for i in range(params["n_runs"]):
+        # Perturb input using mask
+        x_perturbed[i, a_ix[i,:]] = params["mask_value"]
+        # Sum of masked attributions
+        attr_sums[i] = np.sum(a[a_ix[i,:]])
+
+    # Predict on perturbed input
+    y_pred_perturbed = model(x_perturbed)
+    pred_deltas = y_pred[0][0] - y_pred_perturbed
+    pred_deltas = pred_deltas.reshape(params["n_runs"])
 
     # Correlation between sum of masked attributions and change in prediction
     corr = np.corrcoef(pred_deltas, attr_sums)[0,1]
+
     return corr
 
   n_samples = x.shape[0]
@@ -271,9 +235,6 @@ if metric == "faithfulness_correlation":
       "subset_size" : int(args[1]),
       "mask_value" : float(args[2]),
       }
-elif metric == "pixel_flipping":
-    metric_func = pixel_flipping
-    params = {}
 elif metric == "monotonicity_correlation":
     metric_func = monotonicity_correlation
     params = {}

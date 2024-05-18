@@ -97,7 +97,7 @@ min_t = np.min(train_metrics)
 min_v = np.min(valid_metrics)
 min_v = min([min_t, min_v, 0.5])
 
-ax.set_ylim(min_v, 1.0)
+ax.set_ylim(-1.0, 1.0)
 
 labels = [[None, None] for _ in range(n_runs)]
 labels[0] = ["training", "validation"]
@@ -182,8 +182,8 @@ for cov_idxs in range(n_covs):
     mc_against = mean_corrs_known[cov_idxs]
     # Scatter
     ax[row, col].scatter(mc_within, mc_against, color=cmap(cov_idxs), marker=".")
-    ax[row, col].set_ylim(min_v, 1)
-    ax[row, col].set_xlim(min_v, 1)
+    ax[row, col].set_ylim(-1, 1)
+    ax[row, col].set_xlim(-1, 1)
 
     # Ticks only on left and bottom
     if col != 0:
