@@ -43,7 +43,7 @@ def run_lime(model, X):
 
   return attribs
 
-def run_shap(model, X, nsamples=1000):
+def run_shap(model, X, nsamples=10000):
   import shap
   zeros = np.expand_dims(np.zeros(X.shape[1:]), axis=0)
   explainer = shap.KernelExplainer(model.predict, zeros)
