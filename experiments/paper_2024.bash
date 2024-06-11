@@ -1,7 +1,7 @@
 # Experiments for 2024 XAI benchmarks paper
 
 # Options 
-outdir="eds_outputs/icec/"
+outdir="eds_outputs/sstanom/"   # Change to 'eds_output/icec/' for Sea Ice
 covmatrix=""
 nsamplessets=(1000 10000 100000 1000000)
 xai_methods=(saliency input_x_gradient shap lime)
