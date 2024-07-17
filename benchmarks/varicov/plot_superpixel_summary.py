@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from optparse import OptionParser
+from scipy.stats import pearsonr
 
 parser = OptionParser()
 parser.add_option("-a", "--attribution_files",
@@ -104,36 +105,34 @@ if compare_ref:
               attrs[cidx, midx, pidx, sidx].flatten())[0,1]
         mean_ref_corrs[cidx, sidx, pidx] /= n_models
 
-
-      # plot 
-
-      fig, axs = plt.subplots(n_models + 1, n_patch_sizes)
-      for pidx in range(n_patch_sizes):
-        a = np.concatenate([superrefs[cidx, pidx, sidx].flatten(),
-          attrs[cidx, midx, pidx, sidx].flatten()])
-        vmin = np.nanmin(a)
-        vmax = np.nanmax(a)
-        v = max(abs(vmin), abs(vmax))
-        axs[0][pidx].imshow(superrefs[cidx, pidx, sidx], cmap="bwr", vmin=-v, vmax=v)
-        axs[0, pidx].set_xticks([])
-        axs[0, pidx].set_yticks([])
-        for midx in range(n_models):
-          axs[midx+1][pidx].imshow(attrs[cidx, midx, pidx, sidx], cmap="bwr", vmin=-v, vmax=v)
-          axs[midx+1, pidx].set_xticks([])
-          axs[midx+1, pidx].set_yticks([])
-        axs[-1][pidx].set_xlabel("{0:.3f}".format(mean_ref_corrs[cidx, sidx, pidx]))
-      plt.savefig("test-{}.pdf".format(sidx))
-      exit(0)
-      if sidx > 5:
-        exit(0)
-
-    
+      ### plot 
+      ##fig, axs = plt.subplots(n_models + 1, n_patch_sizes)
+      ##for pidx in range(n_patch_sizes):
+      ##  a = np.concatenate([superrefs[cidx, pidx, sidx].flatten(),
+      ##    attrs[cidx, midx, pidx, sidx].flatten()])
+      ##  vmin = np.nanmin(a)
+      ##  vmax = np.nanmax(a)
+      ##  v = max(abs(vmin), abs(vmax))
+      ##  axs[0][pidx].imshow(superrefs[cidx, pidx, sidx], cmap="bwr", vmin=-v, vmax=v)
+      ##  axs[0, pidx].set_xticks([])
+      ##  axs[0, pidx].set_yticks([])
+      ##  for midx in range(n_models):
+      ##    axs[midx+1][pidx].imshow(attrs[cidx, midx, pidx, sidx], cmap="bwr", vmin=-v, vmax=v)
+      ##    axs[midx+1, pidx].set_xticks([])
+      ##    axs[midx+1, pidx].set_yticks([])
+      ##  axs[-1][pidx].set_xlabel("{0:.3f}".format(mean_ref_corrs[cidx, sidx, pidx]))
+      ##plt.savefig("test-{}.pdf".format(sidx))
+      ##exit(0)
+      ##if sidx > 5:
+      ##  exit(0)
 
 if compare_ref:
   mean_correlations = [mean_ref_corrs[i] for i in range(mean_ref_corrs.shape[0])]
 else:
   mean_correlations = [np.load(attr_file)["mean_correlations"]
                      for attr_file in attribution_files]
+
+
 n_samples = mean_correlations[0].shape[0]
 
 mshape = mean_correlations[0].shape
@@ -164,9 +163,11 @@ df = pd.concat(df_all)
 df = df.reset_index()
 
 fig, ax = plt.subplots(figsize=(2*n_covs, 5))
-sns.violinplot(x="patch_size", y="value", hue="covariance", data=df, ax=ax)
+sns.boxplot(x="patch_size", y="value", hue="covariance", data=df, ax=ax)
 ax.set_ylim(-0.25, 1)
 ax.set_ylabel("Pearson correlation")
 ax.set_xlabel("Superpixel size")
 plt.tight_layout()
+
+print("Saved boxplots to: ", outfile)
 plt.savefig(outfile)

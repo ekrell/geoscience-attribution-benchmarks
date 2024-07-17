@@ -64,13 +64,6 @@ for cidx in "${covariance_idxs[@]}"; do
 
   for method in ${xai_methods[@]}; do
 
-    ## Plot comparison of XAI to known attribution
-    #python benchmarks/varicov/plot_attrs.py \
-    #  --input_dir         "${out_dir}"   \
-    #  --covariance_label  "${cidx}"      \
-    #  --xai_label         "${method}"    \
-    #  --output_file        "${out_dir_xai}"/xai_compare_${cidx}.pdf
-
     # Compare XAI results between runs
     for (( i=0; i<n_reps; i++ )); do
       for (( j=0; j<n_reps; j++ )); do

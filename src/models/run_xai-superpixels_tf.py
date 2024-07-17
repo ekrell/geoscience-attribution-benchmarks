@@ -20,6 +20,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 tf.compat.v1.disable_eager_execution()
 from utils import get_valid_cells
 import shap
+from scipy.stats import pearsonr
 
 ###############
 # XAI Methods #
@@ -252,6 +253,7 @@ def main():
 
   # Run XAI method
   superpixel_attribs = np.zeros((n_models, n_patch_sizes, n_samples, rows, cols))
+
   for si, sample in enumerate(samples):
     sample = np.squeeze(sample)
     for pi, patch_size in enumerate(patch_sizes):

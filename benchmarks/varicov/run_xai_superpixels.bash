@@ -39,33 +39,33 @@ for cidx in "${cov_idxs[@]}"; do
 	done
 
 	# For each XAI method
-	#for method in "${xai_methods[@]}"; do
+	for method in "${xai_methods[@]}"; do
 
-	#	### Run XAI on superpixels
-	#	##attribs_file="${out_dir_xai}/${tag}attribs_c-${cidx}_x-${method}.npz"
-	#	##distplot_file="${out_dir_xai}/${tag}attribs_c-${cidx}_x-${method}.pdf"
-	#	##python src/models/run_xai-superpixels_tf.py \
-	#	##	-s ${samples_file} \
-	#	##	-m ${models} \
-	#	##	-i ${samples} \
-	#	##	-p ${patch_sizes} \
-	#	##	-x ${method} \
-	#	##	-a ${attribs_file} \
-	#	##	-d ${distplot_file}
+		# Run XAI on superpixels
+		attribs_file="${out_dir_xai}/${tag}attribs_c-${cidx}_x-${method}.npz"
+		distplot_file="${out_dir_xai}/${tag}attribs_c-${cidx}_x-${method}.pdf"
+		python src/models/run_xai-superpixels_tf.py \
+			-s ${samples_file} \
+			-m ${models} \
+			-i ${samples} \
+			-p ${patch_sizes} \
+			-x ${method} \
+			-a ${attribs_file} \
+			-d ${distplot_file}
 
-	#	### Sum XAI on superpixels
-	#	##attribs_file="${out_dir_xai}/${tag}attribs_c-${cidx}_x-${method}-sums.npz"
-	#	##distplot_file="${out_dir_xai}/${tag}attribs_c-${cidx}_x-${method}-sums.pdf"
-	#	##python src/models/run_xai-superpixels_tf.py \
-	#	##	-s ${samples_file} \
-	#	##	-m ${models} \
-	#	##	-i ${samples} \
-	#	##	-p ${patch_sizes} \
-	#	##	-x ${method} \
-	#	##	-a ${attribs_file} \
-	#	##	-d ${distplot_file} \
-	#	##	--sum_attribs
-	#done
+		# Sum XAI on superpixels
+		attribs_file="${out_dir_xai}/${tag}attribs_c-${cidx}_x-${method}-sums.npz"
+		distplot_file="${out_dir_xai}/${tag}attribs_c-${cidx}_x-${method}-sums.pdf"
+		python src/models/run_xai-superpixels_tf.py \
+			-s ${samples_file} \
+			-m ${models} \
+			-i ${samples} \
+			-p ${patch_sizes} \
+			-x ${method} \
+			-a ${attribs_file} \
+			-d ${distplot_file} \
+			--sum_attribs
+	done
 done
 
 # Plot: distributions change with superpixel size
@@ -108,7 +108,7 @@ for method in "${xai_methods[@]}"; do
 		-l ${cov_idxs_} \
 		-o "${out_dir_xai}/${tag}superpixel-correlations_m-${method}-sums_mvm.pdf"
 
-	# Plot summary: superpixel sums -- models kv known attribs
+	# Plot summary: superpixel sums -- models vs known attribs
 	python benchmarks/varicov/plot_superpixel_summary.py \
 		-a ${attr_sums_files} \
 		-l ${cov_idxs_} \

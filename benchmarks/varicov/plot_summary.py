@@ -104,13 +104,14 @@ labels[0] = ["training", "validation"]
 # Plot metrics for each run
 for run_idx in range(n_runs):
   ax.scatter(x=cov_labels, 
-          y=train_metrics[:,run_idx], marker="*", facecolors='tab:blue', 
-          edgecolors='k', s=325, alpha=0.5, label=labels[run_idx][0])
+          y=train_metrics[:,run_idx], marker="^", facecolors='tab:blue', 
+          edgecolors='k', s=300, alpha=0.5, label=labels[run_idx][0])
   ax.scatter(x=cov_labels, 
           y=valid_metrics[:,run_idx], marker="o", facecolors='tab:red', 
           edgecolors='k', s=250, alpha=0.5, label=labels[run_idx][1])
 ax.legend(loc="lower left")
 
+#ax.set_ylim(0.5, 1.0)
 plt.savefig(out_performance_file)
 plt.clf()
 
