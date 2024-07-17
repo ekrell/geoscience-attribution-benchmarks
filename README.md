@@ -21,15 +21,15 @@ In addition to the tools, there are specific benchmarks in the `benchmarks` dire
 
 	python -m venv venv
 	source venv/bin/activate
-	pip install numpy pandas scipy matplotlib netCDF4 cmocean statsmodels captum scikit-learn pyarrow seaborn
+	pip install numpy pandas scipy matplotlib netCDF4 cmocean statsmodels captum scikit-learn pyarrow seaborn tensorflow cloudpickle imageio innvestigate lime shap pillow xarray zipp
 
 # Develop & Evaluate Benchmarks
 
-- **SST Anomaly benchmark**
+- **'SSTANOM': SST anomaly benchmark**
 	- Benchmark for comparing XAI methods
 	- See its [README](./benchmarks/sstanom/README.md) to run it
 	- See [related publication](https://www.cambridge.org/core/journals/environmental-data-science/article/neural-network-attribution-methods-for-problems-in-geoscience-a-novel-synthetic-benchmark-dataset/DDA562FC7B9A2B30710582861920860E) for details
-- **Correlation Strength benchmark**
+- **'GLOBALCOV': correlation strength benchmark**
 	- Benchmark for comparing XAI with varying correlation strength
 	- See its [README](./benchmarks/varicov/globalcov/README.md) to run it
 	- Publication coming soon
