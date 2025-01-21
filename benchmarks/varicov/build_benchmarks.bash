@@ -16,7 +16,7 @@ config_bmark=${1:-benchmarks/varicov/unicov/config_bmark.json}
 config_network=${2:-benchmarks/varicov/unicov/config_nn.json}
 
 echo ""
-echo "UNICOV Benchmark Pipeline"
+echo "VARICOV Benchmark Pipeline"
 echo "-------------------------"
 echo " Benchmarks config file: ${config_bmark}"
 echo " Neural net config file: ${config_network}"
