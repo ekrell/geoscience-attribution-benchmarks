@@ -153,7 +153,6 @@ axs[0].set_ylabel("Pearson correlation")
 axs[1].set_ylabel("Pearson correlation")
 axs[1].set_xlabel("Covariance matrix")
 
-
 plt.tight_layout()
 plt.savefig(out_corr_file)
 

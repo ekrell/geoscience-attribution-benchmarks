@@ -229,6 +229,7 @@ def main():
   # -------------- #
   # Evaluate Model #
   # -------------- #
+
   def get_metrics(model, x, y):
     preds = model.predict(x)
     loss, mae = model.evaluate(x, y, verbose=2)

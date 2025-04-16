@@ -44,16 +44,15 @@ nn_validation_fraction=$(grep "validation_fraction" ${config_network} | grep -o 
 mkdir -p ${out_dir_xai}
 
 # Generate covariance matrices
-${cov_cmd}
+python benchmarks/varicov/unicov/generate_covariances.py -o ${out_dir}
 
 # Get the indices of the generated matrices based on the files created
 readarray -t covariance_idxs < <( ls ${out_dir}/cov*.npz | grep -o [0-9]* | uniq | sort -n )
 
 for cidx in "${covariance_idxs[@]}"
 do
-    echo "Building synthetic benchmark using: ${cov_file}"
-
     cov_file="${out_dir}/cov_${cidx}.npz"
+    echo "Building synthetic benchmark using: ${cov_file}"
 
     # Generate synthetic samples from covariance
     samples_file=${out_dir}/samples_${cidx}.npz
@@ -61,7 +60,7 @@ do
       --covariance_file "${cov_file}" \
       --num_samples "$n_samples" \
       --output_file "${samples_file}"
-    
+
     # Define a synthetic function with ground-truth attribution
     pwl_attribution_file=${out_dir}/pwl-out_${cidx}.npz
     pwl_function_file=${out_dir}/pwl_fun_${cidx}.npz

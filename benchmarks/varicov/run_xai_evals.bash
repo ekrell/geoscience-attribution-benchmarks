@@ -32,7 +32,6 @@ xai_methods=($xai_methods)
 
 # Get indices of cov matrices based on what is found in output dir
 readarray -t covariance_idxs < <( ls ${out_dir}/cov*.npz | grep -o [0-9]*.npz | grep -o [0-9]* | uniq | sort -n ) 
-
 ################################
 # Part 1: Calculate all scores #
 ################################
@@ -45,8 +44,8 @@ for cidx in "${covariance_idxs[@]}"; do
   pwl_attribution_file=${out_dir}/pwl-out_${cidx}.npz
 
   for (( i=0; i<n_reps; i++ )); do  
+	i=0
 	echo "Repeat: ${i}"
-
 	model_file=${out_dir}/nn_model_${cidx}__${i}.h5
 
 	xai_files=""
@@ -95,8 +94,11 @@ for (( i=0; i<n_reps; i++ )); do
 done
 runidxs=$(echo $runidxs | sed 's/\,//')
 
+echo $runidxs
+
 for method in ${xai_methods[@]}; do
 	plot_file="${out_dir_xai}/${tag}xaieval_${eval_str}_${method}_summary.pdf"
+	echo $plot_file
 	python benchmarks/varicov/plot_xai_metrics.py \
 		-d ${out_dir_xai} \
 		-e ${eval_str} \

@@ -1,7 +1,7 @@
 {
-  "output_directory": "benchmarks/varicov/globalcov/out",
-  "pwl_cov_file": "benchmarks/varicov/globalcov/sstanom_cov.npz",
+  "output_directory": "benchmarks/varicov/globalcov/out/icec/icec_100000",
+  "pwl_cov_file": "benchmarks/varicov/globalcov/icec_cov.npz",
   "n_samples": "100000",
   "n_pwl_breaks": "5",
-  "n_reps": "5",
+  "n_reps": "4",
 }

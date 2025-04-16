@@ -51,6 +51,7 @@ scores = [None for cov in covs]
 for cov in covs:
     dfs = [None for i in runs]
     for i, r in enumerate(runs):
+        print("   ", file_fmt.format(cov, r))
         score_file = file_fmt.format(cov, r)
         dfs[i] = pd.read_csv(score_file)
     dfScores = pd.concat(dfs)
@@ -62,4 +63,3 @@ axs.set_ylim(-1.0, 1.0)
 axs.set_title(eval_str + " -  " + xai_method) 
 plt.tight_layout()
 plt.savefig(plot_file)
-

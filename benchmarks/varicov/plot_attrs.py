@@ -129,7 +129,6 @@ axs[1, 1].set_title("attribution")
 for c in range(n_xais):
   axs[1, c + 2].set_title("xai {}, $r^2 =$ {:.3f}".format(c, r2s[c]))
   
-
 for r, sample in enumerate(samples):
   axs[r + 1, 0].imshow(sample, cmap="bwr", vmin=vmin_sample, vmax=vmax_sample)
   axs[r + 1, 0].set_ylabel("{}".format(sample_idxs[r]))

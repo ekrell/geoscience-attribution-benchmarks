@@ -36,7 +36,6 @@ for cidx in "${covariance_idxs[@]}"; do
   for (( i=0; i<n_reps; i++ )); do
     echo "  Trained model: ${i}"
     model_file=${out_dir}/nn_model_${cidx}__${i}.h5
-
     for method in ${xai_methods[@]}; do
       echo "    XAI method: ${method}"
 
@@ -56,17 +55,13 @@ for cidx in "${covariance_idxs[@]}"; do
         --a_idxs "${samples}" \
         --b_file "${xai_file}" \
         --out_file "${xai_compare_file}"
-
-      head "${xai_compare_file}"
-
      done
   done
 
   for method in ${xai_methods[@]}; do
-
     # Compare XAI results between runs
     for (( i=0; i<n_reps; i++ )); do
-      for (( j=0; j<n_reps; j++ )); do
+      for (( j=1; j<n_reps; j++ )); do
         xai_a_file=${out_dir_xai}/${tag}${method}_${cidx}__${i}.npz
         xai_b_file=${out_dir_xai}/${tag}${method}_${cidx}__${j}.npz
         xai_compare_file=${out_dir_xai}/${tag}${method}_${cidx}__${i}v${j}.csv
@@ -76,11 +71,9 @@ for cidx in "${covariance_idxs[@]}"; do
           --out_file "${xai_compare_file}"
       done
     done
-
     echo ""
   done
 done
-
 
 for method in ${xai_methods[@]}; do
   # Plot summary over entire set of benchmarks

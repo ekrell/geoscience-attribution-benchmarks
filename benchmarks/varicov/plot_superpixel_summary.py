@@ -122,9 +122,6 @@ if compare_ref:
       ##    axs[midx+1, pidx].set_yticks([])
       ##  axs[-1][pidx].set_xlabel("{0:.3f}".format(mean_ref_corrs[cidx, sidx, pidx]))
       ##plt.savefig("test-{}.pdf".format(sidx))
-      ##exit(0)
-      ##if sidx > 5:
-      ##  exit(0)
 
 if compare_ref:
   mean_correlations = [mean_ref_corrs[i] for i in range(mean_ref_corrs.shape[0])]
@@ -132,9 +129,7 @@ else:
   mean_correlations = [np.load(attr_file)["mean_correlations"]
                      for attr_file in attribution_files]
 
-
 n_samples = mean_correlations[0].shape[0]
-
 mshape = mean_correlations[0].shape
 
 for mcorr in mean_correlations:
