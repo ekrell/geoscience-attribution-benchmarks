@@ -8,7 +8,7 @@ The purpose of this repository is to develop synthetic benchmarks for evaluating
 
 [Mamalakis et al. (2022)](https://www.cambridge.org/core/journals/environmental-data-science/article/neural-network-attribution-methods-for-problems-in-geoscience-a-novel-synthetic-benchmark-dataset/DDA562FC7B9A2B30710582861920860E) proposed this benchmark framework for quantitative comparison of XAI methods. An implementation of this benchmark is provided in this repo ([benchmarks/sstanom/](./benchmarks/sstanom/)). 
 
-[Krell et al. (in progress)]() developed a suite of benchmarks to investigate how correlations in the input domain affect XAI-based attributions. An implementation of this benchmark is provided in this repo ([benchmarks/varicov/globalcov/](./benchmarks/varicov/globalcov/)).
+[Krell et al. (2025, accepted)]() developed a suite of benchmarks to investigate how correlations in the input domain affect XAI-based attributions. An implementation of this benchmark is provided in this repo ([benchmarks/varicov/globalcov/](./benchmarks/varicov/globalcov/)).
 
 This repository contains tools for developing synthetic benchmarks for XAI evaluation. 
 The tools in the `src` directory are building blocks for developing benchmarks. For example, `src/synthetic/benchmark_from_covariance.py` uses a covariance to generate a set of synthetic data samples. The scripts in the `pipelines` directory use those tools to build benchmarks given input data (e.g. a covariance matrix). 
